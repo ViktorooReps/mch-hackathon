@@ -54,6 +54,6 @@ if __name__ == '__main__':
         Example(date=datetime.datetime(year=2020, month=12, day=12), text='smth3')
     ]
 
-    dataset_file = Path('test.jsonl')
-    JsonlDataset(exs).write(dataset_file)
-    assert JsonlDataset.read(dataset_file).examples == tuple(exs)
+    dataset_filename = Path('test.jsonl')
+    JsonlDataset(exs).write(dataset_filename)
+    assert JsonlDataset.read(dataset_filename).examples == tuple(exs)
