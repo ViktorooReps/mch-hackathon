@@ -20,7 +20,7 @@ class RequestBuilder:
 
 
 def _get_urls_from_html(html: str) -> Iterable[str]:
-    pass
+    yield 1
 
 
 def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
@@ -43,7 +43,6 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
         sleep(timeout)
 
 
-
-
 if __name__ == '__main__':
-    get_urls()
+    for page in get_urls():
+        pass
