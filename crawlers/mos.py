@@ -1,9 +1,17 @@
+from requests_html import HTMLSession
+
 from time import sleep
 from typing import Iterable, Dict, Any
 
 from requests import get, post
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+
+import logging
+from urllib.parse import urljoin, urlparse
+import requests
+from bs4 import BeautifulSoup
+import colorama
 
 
 class RequestBuilder:
@@ -19,10 +27,31 @@ class RequestBuilder:
         parsed_args = '&'.join(parsed_args)
         return self._url + parsed_args
 
+def is_valid(url):
+    parsed = urlparse(url)
+    return bool(parsed.netloc) and bool(parsed.scheme)
 
-def _get_urls_from_html(html: str) -> Iterable[str]:
-    yield 1
+def _get_urls_from_html(url, html: str) -> Iterable[str]:
+    if not is_valid(url):
+        print("END")
+        return
+    urls = set()
+    soup = BeautifulSoup(html, "html.parser")
+    #print(requests.get(url).content)
+    for a_tag in soup.findAll("a"):
+            href = a_tag.attrs.get("href")
+            if href == "" or href is None:
+                # href empty tag
+                continue
+            if 'news' not in href or 'item' not in href:
+                continue
+            href = urljoin(url, href)
+            parsed_href = urlparse(href)
+            href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
+            if is_valid(href):
+                urls.add(href)
 
+    return urls
 
 CHROME_PATH = '/usr/bin/google-chrome'
 CHROMEDRIVER_PATH = '/usr/bin/chromedriver'
@@ -50,11 +79,11 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
         url = request_builder.build(args)
         driver.get(url)
         text = driver.page_source
-        yield from _get_urls_from_html(text)
+        yield from _get_urls_from_html(url, text)
 
         sleep(timeout)
 
 
 if __name__ == '__main__':
     for url in get_urls():
-        pass
+        print(url)
