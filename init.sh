@@ -7,6 +7,7 @@ curl https://raw.githubusercontent.com/codelucas/newspaper/master/download_corpo
 pip install virtualenv
 virtualenv -p /usr/bin/python3.10 venv
 source venv/bin/activate
+pip install Cython
 pip install -r requirements.txt
 
 mkdir data

@@ -1,6 +1,0 @@
-pandas==0.25.3
-numpy==1.17.4
-lightgbm==2.3.1
-optuna==2.10.0
-joblib==1.0.1
-scikit_learn==1.1.1
