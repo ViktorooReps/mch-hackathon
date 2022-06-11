@@ -3,5 +3,12 @@ newspaper3k==0.2.8
 pytz==2022.1
 selenium==4.2.0
 beautifulsoup4==4.11.1
-transformers==4.19.4
+streamlit==1.10.0
+pandas==0.25.3
+numpy==1.17.4
+lightgbm==2.3.1
+optuna==2.10.0
+joblib==1.0.1
+scikit_learn==1.1.1
 torch==1.9.0
+transformers==4.19.4

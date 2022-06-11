@@ -1,7 +1,8 @@
 from transformers import AutoTokenizer, AutoModel, pipeline
 import torch
 
-class FeatureExtractor():
+
+class FeatureExtractor:
     def __init__(self, model_name="DeepPavlov/rubert-base-cased", token_size=512):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
@@ -21,6 +22,7 @@ class FeatureExtractor():
 
     def extract_features(self, text):
         return torch.FloatTensor(self.pipeline(text))[0, 0, :]
+
 
 if __name__ == '__main__':
     fe = FeatureExtractor()

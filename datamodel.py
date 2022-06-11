@@ -65,9 +65,9 @@ class JsonlDataset:
 
 if __name__ == '__main__':
     exs = [
-        Example(date=datetime.datetime(year=2020, month=12, day=12), text='smth'),
-        Example(date=datetime.datetime(year=2020, month=12, day=12), text='smth2'),
-        Example(date=datetime.datetime(year=2020, month=12, day=12), text='smth3')
+        Example(date=datetime.datetime(year=2020, month=12, day=12), text='туту', title='t'),
+        Example(date=datetime.datetime(year=2020, month=12, day=12), text='smth2', title='t'),
+        Example(date=datetime.datetime(year=2020, month=12, day=12), text='smth3', title='t')
     ]
 
     dataset_filename = Path('test.jsonl')
