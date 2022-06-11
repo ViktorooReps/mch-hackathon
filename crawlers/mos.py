@@ -1,3 +1,4 @@
+from time import sleep
 from typing import Iterable, Dict, Any
 
 from newspaper import Article
@@ -18,7 +19,11 @@ class RequestBuilder:
         return self._url + parsed_args
 
 
-def get_urls() -> Iterable[str]:
+def _get_urls_from_html(html: str) -> Iterable[str]:
+    pass
+
+
+def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
     request_builder = RequestBuilder('https://www.mos.ru/search?')
     args = {
         'category': 'newsfeed',
@@ -33,7 +38,9 @@ def get_urls() -> Iterable[str]:
 
         url = request_builder.build(args)
         response = get(url)
-        print('smth')
+        yield from _get_urls_from_html(response.text)
+
+        sleep(timeout)
 
 
 
