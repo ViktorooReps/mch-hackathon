@@ -8,6 +8,17 @@ from pydantic import BaseModel
 class Example(BaseModel):
     date: datetime.datetime
     text: str
+    title: str
+
+    authors: Optional[Tuple[str, ...]]
+    url: Optional[str]
+    source_url: Optional[str]
+    tags: Optional[Tuple[str, ...]]
+
+    # meta
+
+    keywords: Optional[Tuple[str, ...]]
+    description: Optional[str]
 
 
 class JsonlDataset:
