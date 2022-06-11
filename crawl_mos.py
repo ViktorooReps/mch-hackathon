@@ -22,14 +22,14 @@ if __name__ == '__main__':
     parser.add_argument('--from_date', type=valid_date, default=DATE_START)
     parser.add_argument('--to_date', type=valid_date, default=DATE_END)
     parser.add_argument('--timeout', type=float, default=1.0)
+    parser.add_argument('--patience', type=int, default=10)
     parser.add_argument('--out_path', type=Path, default=Path('data/mos.jsonl'))
 
     args = parser.parse_args()
 
-    urls_iterator = mos.get_urls()
+    urls_iterator = mos.get_urls(timeout=args.timeout, patience=args.patience)
     article_iterator = crawl_articles(urls_iterator,
                                       sorted_by_date=False,
-                                      timeout=args.timeout,
                                       date_start=args.from_date,
                                       date_end=args.to_date)
 

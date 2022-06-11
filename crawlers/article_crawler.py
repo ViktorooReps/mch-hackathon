@@ -16,7 +16,6 @@ def crawl_articles(
         article_urls: Iterable[str],
         *,
         sorted_by_date: bool = True,
-        timeout: float = 1.0,
         date_start: datetime.datetime = DATE_START,
         date_end: datetime.datetime = DATE_END
 ) -> Iterable[Article]:
@@ -24,7 +23,6 @@ def crawl_articles(
     for article in map(Article, article_urls):
         article.download()
         article.parse()
-        sleep(timeout)
 
         if article.publish_date < date_start:
             if sorted_by_date:

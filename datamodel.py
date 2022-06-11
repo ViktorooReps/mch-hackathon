@@ -45,7 +45,7 @@ class JsonlDataset:
 
         with open(to_file, 'w') as f:
             for example in self._examples:
-                f.write(example.json(exclude_none=True) + '\n')
+                f.write(example.json(exclude_none=True, ensure_ascii=False) + '\n')
 
     @property
     def examples(self) -> Tuple[Example]:
