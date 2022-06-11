@@ -51,6 +51,12 @@ class JsonlDataset:
     def examples(self) -> Tuple[Example]:
         return self._examples
 
+    def stats(self) -> dict:
+        return {
+            'total': len(self),
+
+        }
+
     def __iter__(self):
         return self._examples
 

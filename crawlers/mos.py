@@ -26,9 +26,6 @@ def is_valid(url):
 
 
 def _get_urls_from_html(url: str, html: str) -> Iterable[str]:
-    if not is_valid(url):
-        raise ValueError(f'{url} is not valid')
-
     urls = set()
     soup = BeautifulSoup(html, "html.parser")
     for a_tag in soup.findAll("a"):
@@ -59,8 +56,13 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
     request_builder = RequestBuilder('https://www.mos.ru/search?')
     args = {
         'category': 'newsfeed',
-        'skip_stat': 2,
-        'spheres': 14299,
+        'date_from': '2012-01-01+12%3A00%3A00',
+        'date_from_limit': '1442869200',
+        'date_to': '2022-06-01+12%3A00%3A00',
+        'date_to_limit': '1654981199',
+        'hostApplied': 'false',
+        'sort': 'date_desc',
+        'spheres': '183299%2C14299',
         'types': 'news'
     }
 
