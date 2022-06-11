@@ -55,5 +55,5 @@ if __name__ == '__main__':
         'https://www.rbc.ru/technology_and_media/08/06/2022/629f7a099a7947322474d15d',
     ]
 
-    for article in crawl_articles(urls):
-        print(f'{article.publish_date}: {article.title}')
+    for art in crawl_articles(urls):
+        print(f'{art.publish_date}: {art.title}')
