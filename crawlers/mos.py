@@ -20,7 +20,7 @@ class RequestBuilder:
         return self._url + parsed_args
 
 
-def is_valid(url):
+def is_valid(url: str):
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
 
@@ -38,7 +38,8 @@ def _get_urls_from_html(url: str, html: str) -> Iterable[str]:
         href = urljoin(url, href)
         parsed_href = urlparse(href)
         href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
-        urls.add(href)
+        if is_valid(href):
+            urls.add(href)
 
     if not len(urls):
         raise ValueError(f'No URLs found at {url}')

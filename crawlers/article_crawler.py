@@ -1,5 +1,4 @@
 import datetime
-from time import sleep
 from typing import Iterable
 
 import pytz as pytz
