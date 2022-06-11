@@ -1,7 +1,6 @@
 from time import sleep
 from typing import Iterable, Dict, Any
 
-from requests import get, post
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -43,16 +42,21 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
     chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
     driver = webdriver.Chrome(options=chrome_options)
 
-    for page in range(41, 47):
+    page = 1
+    while True:
         print(f'Crawling page {page}...')
         args['page'] = page
 
         url = request_builder.build(args)
         driver.get(url)
         text = driver.page_source
-        yield from _get_urls_from_html(text)
+        try:
+            yield from _get_urls_from_html(text)
+        except ValueError:
+            return  # no page found
 
         sleep(timeout)
+        page += 1
 
 
 if __name__ == '__main__':
