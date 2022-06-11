@@ -53,8 +53,7 @@ class JsonlDataset:
 
     def stats(self) -> dict:
         return {
-            'total': len(self),
-
+            'total': len(self)
         }
 
     def __iter__(self):

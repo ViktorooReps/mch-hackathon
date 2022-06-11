@@ -38,8 +38,7 @@ def _get_urls_from_html(url: str, html: str) -> Iterable[str]:
         href = urljoin(url, href)
         parsed_href = urlparse(href)
         href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
-        if is_valid(href):
-            urls.add(href)
+        urls.add(href)
 
     if not len(urls):
         raise ValueError(f'No URLs found at {url}')
@@ -52,7 +51,7 @@ CHROMEDRIVER_PATH = '/usr/bin/chromedriver'
 WINDOW_SIZE = "1920,1080"
 
 
-def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
+def get_urls(*, timeout: float = 0.0, patience: int = 10) -> Iterable[str]:
     request_builder = RequestBuilder('https://www.mos.ru/search?')
     args = {
         'category': 'newsfeed',
@@ -72,6 +71,7 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
     driver = webdriver.Chrome(options=chrome_options)
 
     page = 1
+    curr_patience = patience
     while True:
         print(f'Crawling page {page}...')
         args['page'] = page
@@ -82,10 +82,14 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
         try:
             yield from _get_urls_from_html(url, text)
         except ValueError:
-            return  # no page found
+            if not curr_patience:
+                return
+            curr_patience -= 1
+            continue
 
         sleep(timeout)
         page += 1
+        curr_patience = patience
 
 
 if __name__ == '__main__':
