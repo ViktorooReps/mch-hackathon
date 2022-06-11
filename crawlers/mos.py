@@ -1,11 +1,7 @@
-from requests_html import HTMLSession
-
 from time import sleep
 from typing import Iterable, Dict, Any
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
