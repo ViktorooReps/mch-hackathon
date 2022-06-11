@@ -3,6 +3,7 @@ from typing import Iterable, Dict, Any
 
 from requests import get, post
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 
 class RequestBuilder:
@@ -23,6 +24,11 @@ def _get_urls_from_html(html: str) -> Iterable[str]:
     yield 1
 
 
+CHROME_PATH = '/usr/bin/google-chrome'
+CHROMEDRIVER_PATH = '/usr/bin/chromedriver'
+WINDOW_SIZE = "1920,1080"
+
+
 def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
     request_builder = RequestBuilder('https://www.mos.ru/search?')
     args = {
@@ -31,7 +37,12 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
         'spheres': 14299,
         'types': 'news'
     }
-    driver = webdriver.Chrome()
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
+    driver = webdriver.Chrome(options=chrome_options)
+
     for page in range(41, 47):
         print(f'Crawling page {page}...')
         args['page'] = page
@@ -45,5 +56,5 @@ def get_urls(*, timeout: float = 1.0) -> Iterable[str]:
 
 
 if __name__ == '__main__':
-    for page in get_urls():
+    for url in get_urls():
         pass
