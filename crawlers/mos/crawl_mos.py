@@ -3,9 +3,9 @@ from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
 
-from crawlers import mos
 from crawlers.adapter import convert_to_example
 from crawlers.article_crawler import DATE_START, crawl_articles, DATE_END, UTC
+from crawlers.mos.utils import get_urls
 from datamodel import JsonlDataset
 
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    urls_iterator = mos.get_urls(timeout=args.timeout, patience=args.patience)
+    urls_iterator = get_urls(timeout=args.timeout, patience=args.patience)
     article_iterator = crawl_articles(urls_iterator,
                                       ignore_date=args.ignore_date,
                                       sorted_by_date=False,
