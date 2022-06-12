@@ -12,19 +12,19 @@ fake_chunks = OriginComparisonFeatures(
             source=TextChunk(
                 relative_position=0,
                 text_position=0,
-                text='1'
+                text='fdsafjasdkl;fjklasdjdfklasdjfkldjsafkljdfjjfjfjfjfjfjfjjjjkfj\njfjfjfjfjfjfjfjf\nfjfjfjfjf\njfjfjfjf\nfjfjfjfjfjfjf'
             ),
             target=TextChunk(
                 relative_position=0,
                 text_position=0,
-                text='1'
+                text='fjdfkdjsfjksdjfkdjfkjsdkfjds'
             )
         ),
         MatchingResult(
             source=TextChunk(
                 relative_position=1,
                 text_position=1,
-                text='2'
+                text='2dfjfkjdfkjdfjdf\nkjfdkdfkdfjdkf\nkjfkdjfkdjfkd\n'
             ),
             target=None
         ),
@@ -32,7 +32,7 @@ fake_chunks = OriginComparisonFeatures(
             source=TextChunk(
                 relative_position=2,
                 text_position=2,
-                text='3'
+                text='fdkjsfkldsjfkjsdklfjsdklfjklsdf'
             ),
             target=TextChunk(
                 relative_position=1,
@@ -55,7 +55,7 @@ fake_chunks = OriginComparisonFeatures(
 
 
 def fake_probability(text):
-    return text, 1, threshold
+    return 1, 0.5, fake_chunks.matches
 
 
 st.title('kadmus dev #5 application')
@@ -81,28 +81,62 @@ elif option == "Article URL":
         text = article.text
 
 if st.button('Accept'):
-    src_text, fake_proba, threshold = fake_probability(text)
+    try:
+        fake_proba, threshold, matches = fake_probability(text)
 
-    result = "Not fake"
-    if fake_proba >= threshold:
-        result = "Fake"
+        result = "Not fake"
+        if fake_proba >= threshold:
+            result = "Fake"
 
-    fake_proba *= 100
-    verdict = "{} ({}%)".format(result, str(fake_proba))
-    st.subheader(verdict)
+        fake_proba *= 100
+        verdict = "{} ({}%)".format(result, str(fake_proba))
+        st.subheader(verdict)
 
-    if src_text is not None:
-        col_src, col_orig = st.columns(2)
-        with col_src:
+        src_header, orig_header = st.columns(2)
+        with src_header:
             st.subheader("Source text")
-            st.write(src_text)
-        with col_orig:
+        with orig_header:
             st.subheader("Your text")
-            st.write(text)
-    else:
+
+        for m in matches:
+            col_src, col_orig = st.columns(2)
+
+            color = 'Green'
+            if m.source is None or m.target is None:
+                color = 'Gray'
+
+            with col_src:
+                if m.source is not None:
+                    output = '<p style="color:{};">{}</p>'.format(color, m.source.text)
+                    st.markdown(output, unsafe_allow_html=True)
+            with col_orig:
+                if m.target is not None:
+                    output = '<p style="color:{};">{}</p>'.format(color, m.target.text)
+                    st.markdown(output, unsafe_allow_html=True)
+    except:
         st.markdown("**The source text have not been found**")
         st.subheader("Your text:")
         st.write(text)
+
+    #if matches is not None:
+    #    col_src, col_orig = st.columns(2)
+    #    with col_src:
+    #        st.subheader("Source text")
+    #        #st.write(src_text)
+    #        for m in matches:
+    #            if m.source is not None:
+    #                output = '<p style="color:Green;">{}</p>'.format(m.source.text)
+    #                st.markdown(output, unsafe_allow_html=True)
+    #    with col_orig:
+    #        st.subheader("Your text")
+    #        for m in matches:
+    #            if m.target is not None:
+    #                output = '<p style="color:Green;">{}</p>'.format(m.target.text)
+    #                st.markdown(output, unsafe_allow_html=True)
+    #else:
+    #    st.markdown("**The source text have not been found**")
+    #    st.subheader("Your text:")
+    #    st.write(text)
     #if is_fake(text):
     #    st.subheader("Fake")
     #else:
