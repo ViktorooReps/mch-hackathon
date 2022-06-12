@@ -6,11 +6,22 @@ import re
 
 from aug_utils import *
 
+Config = {
+    'LOC' : 0.5,
+    'PER': 0.5,
+    'ORG': 0.5,
+    'TIME' : 0.5,
+    'DATE' : 0.5,
+    'CARDINAL': 0.5,
+    'PERCENT': 0.5,
+    'ALL' : 1.0
+}
 
 class SemChanger:
     def __init__(self, ru_space_path="ru_core_news_lg", 
                  en_space_path="en_core_web_lg",
-                mapping_path='data/ner_mapping_clean.pkl'):
+                mapping_path='data/ner_mapping_clean.pkl',
+                config=Config):
         self.ru_nlp = spacy.load(ru_space_path)
         self.en_nlp = spacy.load(en_space_path)
         
@@ -18,16 +29,7 @@ class SemChanger:
         with open(mapping_path, 'rb') as fout:
             self.mapping =  pickle.load(fout)
         
-        self.config = {
-            'LOC' : 0.5,
-            'PER': 0.5,
-            'ORG': 0.5,
-            'TIME' : 0.5,
-            'DATE' : 0.5,
-            'CARDINAL': 0.5,
-            'PERCENT': 0.5,
-            'ALL' : 1.0
-        }
+        self.config = config
     
     
     def change_condition(self, change_proba):
