@@ -22,4 +22,4 @@ python3 comparator.py
 
 ### Что возвращает компаратор
 
-```top_k``` троек (title, text, similarity)
+```top_k``` троек (title, text, similarity) из банка.
