@@ -1,8 +1,9 @@
+from torch import Tensor
 from transformers import AutoTokenizer, AutoModel, pipeline
 import torch
 
 
-class FeatureExtractor:
+class BertFeatureExtractor:
     def __init__(self, model_name="DeepPavlov/rubert-base-cased", token_size=512):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
@@ -20,12 +21,12 @@ class FeatureExtractor:
 
         return pipeline('feature-extraction', tokenizer=tokenizer_with_cut, model=self.model)
 
-    def extract_features(self, text):
+    def extract_features(self, text: str) -> Tensor:
         return torch.FloatTensor(self.pipeline(text))[0, 0, :]
 
 
 if __name__ == '__main__':
-    fe = FeatureExtractor()
+    fe = BertFeatureExtractor()
     embedding = fe.extract_features("Территории возле станций БКЛ «Сокольники», «Рижская» и «Марьина Роща» благоустроят")
     print(embedding.shape)
     print(embedding)
