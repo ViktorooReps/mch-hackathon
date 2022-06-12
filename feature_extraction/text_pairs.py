@@ -10,7 +10,9 @@ from feature_extraction.bert import BertFeatureExtractor
 from feature_extraction.sequence_matcher.semantic import MatchingResult, semantic_match, TextChunk
 
 
-class ScoredMatchingResult(MatchingResult):
+class ScoredMatchingResult(NamedTuple):
+    source: Optional[TextChunk]
+    target: Optional[TextChunk]
     matched: bool
 
     # are present only if matched is True
@@ -22,6 +24,15 @@ class OriginComparisonResults(NamedTuple):
     matches: Tuple[ScoredMatchingResult, ...]
     matched_proportion: float
     features: Dict[str, float]
+
+
+# FIXME: possible bottleneck
+def get_chunk_entities(chunk: TextChunk, entities: Iterable[Entity]) -> Iterable[Entity]:
+    chunk_start = chunk.text_position
+    chunk_end = chunk_start + len(chunk.text)
+    for entity in entities:
+        if entity.start >= chunk.text_position and entity.end < chunk_end:
+            yield entity
 
 
 class ArticleOriginFeatureExtractor:
@@ -58,7 +69,9 @@ class ArticleOriginFeatureExtractor:
         if origin_matching_result is None:
             raise ValueError('No origin.')
 
-        fact_scores = self._get_fact_scores_for_matches(origin_text, article_text, filter(filter_matched, origin_matching_result))
+        origin_entities = self._entity_extractor.get_entities(origin_text)
+        article_entities = self._entity_extractor.get_entities(article_text)
+        fact_scores = self._get_fact_scores_for_matches(origin_entities, article_entities, filter(filter_matched, origin_matching_result))
 
         fact_score_iterator = iter(fact_scores)
         scored_matches: List[ScoredMatchingResult] = []
@@ -76,10 +89,10 @@ class ArticleOriginFeatureExtractor:
             ))
 
         result = OriginComparisonResults(matches=tuple(scored_matches), matched_proportion=origin_matched_proportion, features={})
-        self._fill_features(result)
+        self._fill_features(result, origin_entities, article_entities)
         return result
 
-    def _fill_features(self, results: OriginComparisonResults):
+    def _fill_features(self, results: OriginComparisonResults, origin_entities: Iterable[Entity], article_entities: Iterable[Entity]):
         pass
 
     @staticmethod
@@ -95,23 +108,12 @@ class ArticleOriginFeatureExtractor:
 
         return matched_chunks / total_chunks
 
+    @staticmethod
     def _get_fact_scores_for_matches(
-            self,
-            origin_text: str,
-            article_text: str,
+            origin_entities: Iterable[Entity],
+            article_entities: Iterable[Entity],
             matches: Iterable[MatchingResult]
     ) -> Iterable[float]:
-
-        origin_entities = self._entity_extractor.get_entities(origin_text)
-        article_entities = self._entity_extractor.get_entities(article_text)
-
-        # FIXME: possible bottleneck
-        def get_chunk_entities(chunk: TextChunk, entities: Iterable[Entity]) -> Iterable[Entity]:
-            chunk_start = chunk.text_position
-            chunk_end = chunk_start + len(chunk.text)
-            for entity in entities:
-                if entity.start >= chunk.text_position and entity.end < chunk_end:
-                    yield entity
 
         for match in matches:
             yield get_fact_consistency(
