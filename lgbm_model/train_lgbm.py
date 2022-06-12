@@ -1,4 +1,15 @@
-from abc import abstractmethod
+"""
+    Суть скрипта: натренировать модель LGBM + 
+    сделать инференс используя реализации
+    load_train_val из optuna_tuner.py
+
+    Аргументы argparse:
+    * exp-root - папка с экспериментами
+    * exp-name - название эксперимента
+    * time-budget - сколько времени даем LGBM на тюнинг
+    * num-est     - n_estimators для перебора
+"""
+
 import os
 from os.path import join
 import shutil

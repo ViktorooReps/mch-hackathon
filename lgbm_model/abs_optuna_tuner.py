@@ -1,3 +1,9 @@
+"""
+Обертка вокруг optuna + LightGBM 
+для автоматической тренировки,
+черный ящик
+"""
+
 import optuna
 import lightgbm as lgb
 

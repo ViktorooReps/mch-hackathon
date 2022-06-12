@@ -1,3 +1,13 @@
+"""
+    Суть скрипта:
+    сделать инференс используя 
+    load_test из inference_lgbm.py
+
+    Аргументы argparse:
+    * exp-root - папка с экспериментами
+    * exp-name - название эксперимента из которого подгружается модель
+"""
+
 import os
 from os.path import join
 
