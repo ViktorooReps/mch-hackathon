@@ -65,8 +65,8 @@ def get_unmatched_entities(
 
     result = []
     for source_entities, target_entities in zip(source_chunk_entities, target_chunk_entities):
-        source_entity_strs = {entity.label for entity in source_entities}
-        target_entity_strs = {entity.label for entity in target_entities}
+        source_entity_strs = {entity.text for entity in source_entities if entity.label == entity_type}
+        target_entity_strs = {entity.text for entity in target_entities if entity.label == entity_type}
 
         unmatched = source_entity_strs.difference(target_entity_strs)
         result.append(len(unmatched) / len(source_entity_strs))
