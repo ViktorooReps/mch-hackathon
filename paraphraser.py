@@ -1,7 +1,10 @@
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
+import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
+
+from fact_extraction.entity_extractor import EntityExtractor
 
 class Paraphraser():
     def __init__(self, beams=3, grams=4, do_sample=False, paraphraser="cointegrated/rut5-base-paraphraser", device='cpu'):
@@ -14,15 +17,28 @@ class Paraphraser():
         self.tokenizer = AutoTokenizer.from_pretrained(paraphraser)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(paraphraser)
         self.model.to(self.device)
+        self.extractor = EntityExtractor()
 
+        
     def __call__(self, text):
         splitted_text = text.split('\n\n')
         modified_text = []
         for paragraph in splitted_text:
-            x = self.tokenizer(paragraph, return_tensors='pt', padding=True).to(self.model.device)
-            max_size = int(x.input_ids.shape[1] * 1.5 + 10)
-            out = self.model.generate(**x, encoder_no_repeat_ngram_size=self.grams, num_beams=self.beams, max_length=max_size, do_sample=self.do_sample)
-            modified_text.append(self.tokenizer.decode(out[0], skip_special_tokens=True))
+            
+            entities = self.extractor.get_entities(paragraph)
+            if len(entities) == 0 or np.random.rand() < 0.2:
+                x = self.tokenizer(paragraph, return_tensors='pt', padding=True).to(self.model.device)
+                max_size = int(x.input_ids.shape[1] * 1.5 + 10)
+                out = self.model.generate(**x, encoder_no_repeat_ngram_size=self.grams,
+                                          num_beams=self.beams,
+                                          max_length=max_size,
+                                          do_sample=self.do_sample)
+
+                modified_text.append(self.tokenizer.decode(out[0], skip_special_tokens=True))
+            
+            else:
+                modified_text.append(paragraph)
+            
         modified_text = "\n\n".join(modified_text)
         return modified_text
 
