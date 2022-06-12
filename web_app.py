@@ -4,9 +4,9 @@ import io
 from newspaper import Article
 
 from feature_extraction.sequence_matcher.semantic import MatchingResult, TextChunk
-from feature_extraction.text_pairs import OriginComparisonFeatures
+from feature_extraction.text_pairs import OriginComparisonResults
 
-fake_chunks = OriginComparisonFeatures(
+fake_chunks = OriginComparisonResults(
     matches=(
         MatchingResult(
             source=TextChunk(

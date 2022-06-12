@@ -1,4 +1,4 @@
-from typing import Iterable, Callable, Optional, Tuple, NamedTuple
+from typing import Iterable, Callable, Optional, Tuple, NamedTuple, Dict, List
 
 import nltk.tokenize
 from torch import Tensor
@@ -10,10 +10,18 @@ from feature_extraction.bert import BertFeatureExtractor
 from feature_extraction.sequence_matcher.semantic import MatchingResult, semantic_match, TextChunk
 
 
-class OriginComparisonFeatures(NamedTuple):
-    matches: Tuple[MatchingResult, ...]
-    fact_scores: Tuple[float, ...]
+class ScoredMatchingResult(MatchingResult):
+    matched: bool
+
+    # are present only if matched is True
+    fact_score: Optional[float]
+    is_fake: Optional[bool]
+
+
+class OriginComparisonResults(NamedTuple):
+    matches: Tuple[ScoredMatchingResult, ...]
     matched_proportion: float
+    features: Dict[str, float]
 
 
 class ArticleOriginFeatureExtractor:
@@ -28,7 +36,7 @@ class ArticleOriginFeatureExtractor:
         self._entity_extractor = entity_extractor
         self._feature_extractor = feature_extractor
 
-    def extract_features(self, article_text: str, possible_origins: Iterable[str]) -> OriginComparisonFeatures:
+    def extract_features(self, article_text: str, possible_origins: Iterable[str]) -> OriginComparisonResults:
         possible_origins = tuple(possible_origins)
         article_chunks = self._chunker(article_text)
 
@@ -51,7 +59,28 @@ class ArticleOriginFeatureExtractor:
             raise ValueError('No origin.')
 
         fact_scores = self._get_fact_scores_for_matches(origin_text, article_text, filter(filter_matched, origin_matching_result))
-        return OriginComparisonFeatures(origin_matching_result, tuple(fact_scores), origin_matched_proportion)
+
+        fact_score_iterator = iter(fact_scores)
+        scored_matches: List[ScoredMatchingResult] = []
+        for origin_match in origin_matching_result:
+            fact_score = None
+            if filter_matched(origin_match):
+                fact_score = next(fact_score_iterator)
+
+            scored_matches.append(ScoredMatchingResult(
+                source=origin_match.source,
+                target=origin_match.target,
+                matched=(fact_score is not None),
+                fact_score=fact_score,
+                is_fake=None if fact_score is None else fact_score < 0.5
+            ))
+
+        result = OriginComparisonResults(matches=tuple(scored_matches), matched_proportion=origin_matched_proportion, features={})
+        self._fill_features(result)
+        return result
+
+    def _fill_features(self, results: OriginComparisonResults):
+        pass
 
     @staticmethod
     def _matched_proportion(matched: Iterable[MatchingResult]) -> float:
@@ -143,12 +172,11 @@ if __name__ == '__main__':
     res = aofe.extract_features(art, po)
     print(f'Matched proportion: {res.matched_proportion}\n')
     print('-' * 20)
-    fact_score_iter = iter(res.fact_scores)
-    for match in res.matches:
-        if match.source is not None and match.target is not None:
-            print(f'Match!\n  fact_score: {next(fact_score_iter)}\n  ')
-        if match.source is not None:
-            print(f'Origin: {match.source.text}')
-        if match.target is not None:
-            print(f'Article: {match.target.text}')
+    for m in res.matches:
+        if m.source is not None and m.target is not None:
+            print(f'Match!\n  fact_score: {m.fact_score}\n  ')
+        if m.source is not None:
+            print(f'Origin: {m.source.text}')
+        if m.target is not None:
+            print(f'Article: {m.target.text}')
         print('-' * 20)
