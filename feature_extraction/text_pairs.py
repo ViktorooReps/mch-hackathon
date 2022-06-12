@@ -2,6 +2,7 @@ from functools import partial
 from typing import Iterable, Callable, Optional, Tuple, NamedTuple, Dict, List
 
 import nltk.tokenize
+import numpy as np
 from numpy.typing import NDArray
 from torch import Tensor
 
@@ -29,7 +30,10 @@ class OriginComparisonResults(NamedTuple):
 
 
 # FIXME: possible bottleneck
-def get_chunk_entities(chunk: TextChunk, entities: Iterable[Entity]) -> Iterable[Entity]:
+def get_chunk_entities(chunk: Optional[TextChunk], entities: Iterable[Entity]) -> Iterable[Entity]:
+    if chunk is None:
+        return tuple()
+
     chunk_start = chunk.text_position
     chunk_end = chunk_start + len(chunk.text)
     for entity in entities:
@@ -58,15 +62,35 @@ def get_unmatched_entities(
         source_chunk_entities: Iterable[Tuple[Entity, ...]],
         target_chunk_entities: Iterable[Tuple[Entity, ...]]
 ) -> NDArray:
-    pass
+
+    result = []
+    for source_entities, target_entities in zip(source_chunk_entities, target_chunk_entities):
+        source_entity_strs = {entity.label for entity in source_entities}
+        target_entity_strs = {entity.label for entity in target_entities}
+
+        unmatched = source_entity_strs.difference(target_entity_strs)
+        result.append(len(unmatched) / len(source_entity_strs))
+
+    return np.ndarray(result)
 
 
 def get_match_for_entity_type(
         entity_type: EntityType,
-        source_chunk_entities: Iterable[Tuple[Entity, ...]],
-        target_chunk_entities: Iterable[Tuple[Entity, ...]]
+        origin_chunk_entities: Iterable[Tuple[Entity, ...]],
+        article_chunk_entities: Iterable[Tuple[Entity, ...]]
 ) -> NDArray:
-    pass
+
+    def type_filter(entity: Entity) -> bool:
+        return entity.label == entity_type
+
+    result = []
+    for origin_entities, article_entities in zip(origin_chunk_entities, article_chunk_entities):
+        result.append(get_fact_consistency(
+            true_facts=filter(type_filter, origin_entities),
+            target_facts=filter(type_filter, article_entities)
+        ))
+
+    return np.ndarray(result)
 
 
 class ArticleOriginFeatureExtractor:
@@ -132,15 +156,8 @@ class ArticleOriginFeatureExtractor:
         origin_entities = tuple(origin_entities)
         article_entities = tuple(article_entities)
 
-        origin_chunks: List[TextChunk] = []
-        for origin_smr in results.matches:
-            if origin_smr.source is not None:
-                origin_chunks.append(origin_smr.source)
-
-        article_chunks: List[TextChunk] = []
-        for article_smr in results.matches:
-            if article_smr.source is not None:
-                article_chunks.append(article_smr.source)
+        origin_chunks: List[TextChunk] = [match.source for match in results.matches]
+        article_chunks: List[TextChunk] = [match.target for match in results.matches]
 
         origin_chunk_entities = tuple(map(tuple, map(partial(get_chunk_entities, entities=origin_entities), origin_chunks)))
         article_chunk_entities = tuple(map(tuple, map(partial(get_chunk_entities, entities=article_entities), article_chunks)))
