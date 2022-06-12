@@ -3,12 +3,11 @@ import io
 
 from newspaper import Article
 
-def is_fake(title):
-    return True
+def fake_probability(text):
+    return text, 1, 0.5
 
 st.title('kadmus dev #5 application')
 text = ""
-
 
 option = st.selectbox(
         "Choose way to upload article",
@@ -30,10 +29,32 @@ elif option == "Article URL":
         text = article.text
 
 if st.button('Accept'):
-    if is_fake(text):
-        st.subheader("Fake")
-    else:
-        st.subheader("Not fake")
+    src_text, fake_proba, threshold = fake_probability(text)
 
-    st.markdown("**Original text:**")
-    st.write(text)
+    result = "Not fake"
+    if fake_proba >= threshold:
+        result = "Fake"
+
+    fake_proba *= 100
+    verdict = "{} ({}%)".format(result, str(fake_proba))
+    st.subheader(verdict)
+
+    if src_text is not None:
+        col_src, col_orig = st.columns(2)
+        with col_src:
+            st.subheader("Source text")
+            st.write(src_text)
+        with col_orig:
+            st.subheader("Your text")
+            st.write(text)
+    else:
+        st.markdown("**The source text have not been found**")
+        st.subheader("Your text:")
+        st.write(text)
+    #if is_fake(text):
+    #    st.subheader("Fake")
+    #else:
+    #    st.subheader("Not fake")
+
+    #st.markdown("**Original text:**")
+    #st.write(text)
