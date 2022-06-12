@@ -11,6 +11,22 @@ months = [
 time_words = ['до', 'и', 'начнется']
 
 
+
+def check_if_month(string):
+    for month in months:
+        if month in string:
+            return True
+    return False
+
+
+def check_if_time_words(string):
+    for word in time_words:
+        if word in string:
+            return True
+    return False
+
+
+
 def get_filtered_date(inputs):
     inputs = inputs.replace('-', ' - ')
     inputs = inputs.replace('\n', ' ')
