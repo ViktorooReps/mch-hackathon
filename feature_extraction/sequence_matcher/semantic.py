@@ -7,7 +7,7 @@ from sklearn.metrics import pairwise_distances
 from torch import Tensor
 
 from feature_extraction.bert import BertFeatureExtractor
-from feature_extraction.sequence_matcher.levenstein import match
+from feature_extraction.sequence_matcher.match import soft_match
 
 
 class TextChunk(NamedTuple):
@@ -81,7 +81,7 @@ def semantic_match(
         # choose most confident matches
         match_idxes = torch.topk(semantic_confidence[source_idx], k=k).indices
         for possible_match_idx in match_idxes:
-            match_scores.append(match(source, target_text_chunks[possible_match_idx]))
+            match_scores.append(soft_match(source, target_text_chunks[possible_match_idx]))
             position_scores.append(1 - abs(source_idx / total_source - possible_match_idx / total_target))
             semantic_scores.append(semantic_confidence[source_idx][possible_match_idx])
 

@@ -1,10 +1,11 @@
+from collections import defaultdict
 from functools import partial
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Tuple, Optional, Dict, Set
 
 import numpy as np
 
-from fact_extraction.model import Entity
-from feature_extraction.sequence_matcher.levenstein import match
+from fact_extraction.model import Entity, get_matcher, EntityType
+from feature_extraction.sequence_matcher.match import soft_match
 
 months = [
     "май", "мая", "маю", "маем", "мае",
@@ -81,20 +82,21 @@ def get_filtered_cardinal(inputs: str) -> Tuple[bool, Optional[str]]:
 
 
 def get_fact_consistency(true_facts: Iterable[Entity], target_facts: Iterable[Entity]) -> float:
+    true_fact_mapping: Dict[EntityType, Set[str]] = defaultdict(set)
+    target_fact_mapping: Dict[EntityType, Set[str]] = defaultdict(set)
 
-    def facts_as_strings(facts: Iterable[Entity]) -> Iterable[str]:
-        for fact in facts:
-            yield fact.text
+    for fact in true_facts:
+        true_fact_mapping[fact.label].add(fact.text)
 
-    true_strs = set(facts_as_strings(true_facts))
-    target_strs = set(facts_as_strings(target_facts))
+    for fact in target_facts:
+        target_fact_mapping[fact.label].add(fact.text)
 
-    if not len(true_strs):
+    if not len(true_fact_mapping):
         return 1.0
 
     res = []
     for target_fact in target_strs:
-        matcher = partial(match, seq2=target_fact)
+        matcher = partial(get_matcher(), seq2=target_fact)
         fact_consistency = max(map(matcher, true_strs))
         res.append(fact_consistency)
 

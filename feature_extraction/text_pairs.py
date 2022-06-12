@@ -1,11 +1,13 @@
+from functools import partial
 from typing import Iterable, Callable, Optional, Tuple, NamedTuple, Dict, List
 
 import nltk.tokenize
+from numpy.typing import NDArray
 from torch import Tensor
 
 from fact_extraction.entity_extractor import EntityExtractor
 from fact_extraction.helper import get_fact_consistency
-from fact_extraction.model import Entity
+from fact_extraction.model import Entity, EntityType
 from feature_extraction.bert import BertFeatureExtractor
 from feature_extraction.sequence_matcher.semantic import MatchingResult, semantic_match, TextChunk
 
@@ -33,6 +35,38 @@ def get_chunk_entities(chunk: TextChunk, entities: Iterable[Entity]) -> Iterable
     for entity in entities:
         if entity.start >= chunk.text_position and entity.end < chunk_end:
             yield entity
+
+
+def get_entity_origin_count(
+        entity_type: EntityType,
+        origin_chunk_entities: Iterable[Tuple[Entity, ...]],
+        origin_entities: Iterable[Entity]
+) -> NDArray:
+    pass
+
+
+def get_entity_article_count(
+        entity_type: EntityType,
+        article_chunk_entities: Iterable[Tuple[Entity, ...]],
+        article_entities: Iterable[Entity]
+) -> NDArray:
+    pass
+
+
+def get_unmatched_entities(
+        entity_type: EntityType,
+        source_chunk_entities: Iterable[Tuple[Entity, ...]],
+        target_chunk_entities: Iterable[Tuple[Entity, ...]]
+) -> NDArray:
+    pass
+
+
+def get_match_for_entity_type(
+        entity_type: EntityType,
+        source_chunk_entities: Iterable[Tuple[Entity, ...]],
+        target_chunk_entities: Iterable[Tuple[Entity, ...]]
+) -> NDArray:
+    pass
 
 
 class ArticleOriginFeatureExtractor:
@@ -93,7 +127,46 @@ class ArticleOriginFeatureExtractor:
         return result
 
     def _fill_features(self, results: OriginComparisonResults, origin_entities: Iterable[Entity], article_entities: Iterable[Entity]):
-        pass
+        chunk_features = {}
+
+        origin_entities = tuple(origin_entities)
+        article_entities = tuple(article_entities)
+
+        origin_chunks: List[TextChunk] = []
+        for origin_smr in results.matches:
+            if origin_smr.source is not None:
+                origin_chunks.append(origin_smr.source)
+
+        article_chunks: List[TextChunk] = []
+        for article_smr in results.matches:
+            if article_smr.source is not None:
+                article_chunks.append(article_smr.source)
+
+        origin_chunk_entities = tuple(map(tuple, map(partial(get_chunk_entities, entities=origin_entities), origin_chunks)))
+        article_chunk_entities = tuple(map(tuple, map(partial(get_chunk_entities, entities=article_entities), article_chunks)))
+
+        for entity_type in EntityType:
+            entity_type_name = entity_type.value
+
+            feat_name = f'{entity_type_name}_ent_origin_count'
+            src_count = get_entity_origin_count(entity_type, origin_chunk_entities, origin_entities)
+            chunk_features[feat_name] = src_count
+
+            feat_name = f'{entity_type_name}_ent_article_count'
+            art_count = get_entity_article_count(entity_type, article_chunk_entities, article_entities)
+            chunk_features[feat_name] = art_count
+
+            feat_name = f'{entity_type_name}_ent_count_diff'
+            chunk_features[feat_name] = src_count - art_count
+
+            feat_name = f'{entity_type_name}_unmatched_origin_entities'
+            chunk_features[feat_name] = get_unmatched_entities(entity_type, origin_chunk_entities, article_chunk_entities)
+
+            feat_name = f'{entity_type_name}_unmatched_article_entities'
+            chunk_features[feat_name] = get_unmatched_entities(entity_type, article_chunk_entities, origin_chunk_entities)
+
+            feat_name = f'{entity_type_name}_avg_match'
+            chunk_features[feat_name] = get_match_for_entity_type(entity_type, article_chunk_entities, origin_chunk_entities)
 
     @staticmethod
     def _matched_proportion(matched: Iterable[MatchingResult]) -> float:
