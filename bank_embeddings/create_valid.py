@@ -1,5 +1,14 @@
+"""
+Модуль создает файл provided_fakes.csv в котором содержатся 
+тексты и заголовки статей из ТЗ, использются файлы
+input/text_1.txt, input/title_1.txt,
+input/text_2.txt, input/title_2.txt,
+...
+"""
+
 import pandas as pd
 from os.path import join
+
 if __name__ == '__main__':
     num_papers = 8
     data_dir = 'input'

@@ -9,6 +9,11 @@ from feature_extraction.bert import FeatureExtractor
 
 class Comparator():
     def __init__(self, dataframe: pd.DataFrame, title_embeddings: np.array, text_embeddings: np.array):
+        """
+            param: dataframe - мета-информация (train.csv, test.csv) о статьях
+            param: title_embeddings - BERT-эмбеддинги заголовков статей
+            param: text_embeddings  - BERT-эмбеддинги текстов статей
+        """
         self.source_meta = dataframe
         
         self.title_source_embeddings = title_embeddings
@@ -17,11 +22,27 @@ class Comparator():
         self.embedder = FeatureExtractor()
 
     def get_source(self, text: str, *, top_k: int = 1, use_title: bool = False):
+        """
+            param: text  - потенциальный фейк, хотим для этого текста найти первоисточник
+            param: top_k - сколько потенциальных первоисточников возвращать
+            param: use_title - использовать эмбеддинги текстов или эмбеддинги заголовков из банка для сравнения с param: text
+
+            returns:
+            param: top_k троек (заголовок_потенциального_первоисточника, текст_потенциального_первоисточника, cosine_similarity эмбеддингов)
+        """
         embedding = np.array(self.embedder.extract_features(text))
         index, similarity = self.search_nearest_neightbours(embedding, top_k, use_title)
         return (self.source_meta.loc[index, "title"], self.source_meta.loc[index, "text"], similarity[index])
 
     def search_nearest_neightbours(self, embedding: np.array, top_k: int, use_title: bool):
+        """
+            param: text  - потенциальный фейк, хотим для этого текста найти первоисточник
+            param: top_k - сколько потенциальных первоисточников возвращать
+            param: use_title - использовать эмбеддинги текстов или эмбеддинги заголовков из банка для сравнения с param: text
+
+            returns:
+            param: top_k - ближайших по cosine similarity соседей из банка 
+        """
         if use_title:
             similarity = cosine_similarity([embedding], self.title_source_embeddings)
         else:

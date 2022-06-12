@@ -1,3 +1,9 @@
+"""
+Данный модуль создает файлик embedding_similarity.png
+который вероятно можно будет показать оргам чтобы они посмотрели 
+насколько похожи их измененные тексты между собой
+"""
+
 from sklearn.metrics.pairwise import cosine_distances
 from feature_extraction.bert import FeatureExtractor
 
