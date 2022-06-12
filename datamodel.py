@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class Example(BaseModel):
-    date: datetime.datetime
+    date: Optional[datetime.datetime]
     text: str
     title: str
 

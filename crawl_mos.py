@@ -19,6 +19,7 @@ def valid_date(s):
 
 if __name__ == '__main__':
     parser = ArgumentParser('mos.ru crawler')
+    parser.add_argument('--ignore_date', action='store_true')
     parser.add_argument('--from_date', type=valid_date, default=DATE_START)
     parser.add_argument('--to_date', type=valid_date, default=DATE_END)
     parser.add_argument('--timeout', type=float, default=1.0)
@@ -29,6 +30,7 @@ if __name__ == '__main__':
 
     urls_iterator = mos.get_urls(timeout=args.timeout, patience=args.patience)
     article_iterator = crawl_articles(urls_iterator,
+                                      ignore_date=args.ignore_date,
                                       sorted_by_date=False,
                                       date_start=args.from_date,
                                       date_end=args.to_date)

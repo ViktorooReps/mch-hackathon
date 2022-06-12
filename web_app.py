@@ -3,8 +3,60 @@ import io
 
 from newspaper import Article
 
+from feature_extraction.sequence_matcher.semantic import MatchingResult, TextChunk
+from feature_extraction.text_pairs import OriginComparisonFeatures
+
+fake_chunks = OriginComparisonFeatures(
+    matches=(
+        MatchingResult(
+            source=TextChunk(
+                relative_position=0,
+                text_position=0,
+                text='1'
+            ),
+            target=TextChunk(
+                relative_position=0,
+                text_position=0,
+                text='1'
+            )
+        ),
+        MatchingResult(
+            source=TextChunk(
+                relative_position=1,
+                text_position=1,
+                text='2'
+            ),
+            target=None
+        ),
+        MatchingResult(
+            source=TextChunk(
+                relative_position=2,
+                text_position=2,
+                text='3'
+            ),
+            target=TextChunk(
+                relative_position=1,
+                text_position=1,
+                text='2'
+            )
+        ),
+        MatchingResult(
+            source=None,
+            target=TextChunk(
+                relative_position=2,
+                text_position=2,
+                text='3'
+            )
+        )
+    ),
+    fact_scores=(1.0, 0.2),
+    matched_proportion=0.7
+)
+
+
 def fake_probability(text):
-    return text, 1, 0.5
+    return text, 1, threshold
+
 
 st.title('kadmus dev #5 application')
 text = ""

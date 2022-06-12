@@ -7,6 +7,18 @@ warnings.filterwarnings('ignore')
 from fact_extraction.entity_extractor import EntityExtractor
 
 class Paraphraser():
+    """
+    Класс для генерации модифицированных текстов по исходным текстам.
+    Данные модификации не изменяют семантическую составляющую исходника,
+    а только перефразируют содержание, не меняя сути
+    Args:
+        beams: Кол-во лучей для beam search. 1 означает, что модель работает без beam search.
+        grams: Если больше нуля, то все n-grams такого размера, возникающие в `encoder_input_ids` обязательно
+        должны быть изменены в `decoder_input_ids
+        do_sample: Флаг, означающий использование или не использование sampling'а
+        paraphraser: Название модели для paraphraser'а
+        device: Процессор, на котром будет работать модель paraphraser'а
+    """
     def __init__(self, beams=3, grams=4, do_sample=False, paraphraser="cointegrated/rut5-base-paraphraser", device='cpu'):
         self.device = 'cpu'
         if device == 'cuda':
@@ -21,6 +33,11 @@ class Paraphraser():
 
         
     def __call__(self, text):
+        """
+        Метод класса, в котором происходит модификация текста
+        Args:
+            text: Исходник, который нужно модифицировать
+        """
         splitted_text = text.split('\n\n')
         modified_text = []
         for paragraph in splitted_text:
