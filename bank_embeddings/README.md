@@ -1,14 +1,14 @@
 ### Преобразование raw-текстов из ТЗ в .csv
-python3 create_valid.py
+```python3 create_valid.py```
 
 ### Посмотреть на матрицу расстояний для текстов из ТЗ
-python3 compare_embeddings.py
+```python3 compare_embeddings.py```
 
 ### Построить эмбеддинги для текста + заголовков для теста + трейна
-python3 compute_bank_embeddings.py
+```python3 compute_bank_embeddings.py```
 
 ### Сделать query к банку
-python3 comparator.py
+```python3 comparator.py```
 
 Интерфейс компаратора следующий:
 
