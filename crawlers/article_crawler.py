@@ -14,6 +14,7 @@ DATE_END = datetime.datetime(year=2022, month=6, day=11, tzinfo=UTC)
 def crawl_articles(
         article_urls: Iterable[str],
         *,
+        ignore_date: bool = False,
         sorted_by_date: bool = True,
         date_start: datetime.datetime = DATE_START,
         date_end: datetime.datetime = DATE_END
@@ -22,6 +23,10 @@ def crawl_articles(
     for article in map(Article, article_urls):
         article.download()
         article.parse()
+
+        if ignore_date:
+            yield article
+            continue
 
         if article.publish_date < date_start:
             if sorted_by_date:

@@ -56,14 +56,14 @@ def get_urls(*, timeout: float = 0.0, patience: int = 10) -> Iterable[str]:
     request_builder = RequestBuilder('https://www.mos.ru/search?')
     args = {
         'category': 'newsfeed',
-        'date_from': '2012-01-01+12%3A00%3A00',
+        'date_from': '2020-01-01+12%3A00%3A00',
         'date_from_limit': '1442869200',
         'date_to': '2022-06-01+12%3A00%3A00',
         'date_to_limit': '1654981199',
         'hostApplied': 'false',
         'sort': 'date_desc',
-        'spheres': '183299%2C14299',
-        'types': 'news'
+#        'spheres': '183299%2C14299',
+#        'types': 'news'
     }
 
     chrome_options = Options()
