@@ -17,7 +17,6 @@ transformers==4.19.4
 thefuzz[speedup]==0.19.0
 
 spacy==3.3.1
-nltk==3.7
 dateparser==1.1.1
 
 lightgbm==3.3.2
