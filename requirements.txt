@@ -16,6 +16,7 @@ torch==1.11.0
 transformers==4.19.4
 thefuzz[speedup]==0.19.0
 
+nltk
 spacy==3.3.1
 dateparser==1.1.1
 
