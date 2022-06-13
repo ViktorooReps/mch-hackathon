@@ -57,7 +57,7 @@ elif option == "Article URL":
 
 if st.button('Accept'):
     try:
-        fake_proba, threshold, matches = fake_probability(text)
+        matches, fake_proba, threshold = fake_probability(text)
 
         result = "Not fake"
         if fake_proba >= threshold:
@@ -94,7 +94,7 @@ if st.button('Accept'):
                     output = '<p style="color:{};">{}</p>'.format(color, m.target.text)
                     st.markdown(output, unsafe_allow_html=True)
             st.markdown("""---""")
-    except:
+    except ValueError:
         st.markdown("**The source text have not been found**")
         st.subheader("Your text:")
         st.write(text)
