@@ -8,7 +8,7 @@ from PIL import Image
 from detection_module import pipeline_factory
 
 
-skip_download = True
+skip_download = False
 
 
 @st.experimental_singleton
