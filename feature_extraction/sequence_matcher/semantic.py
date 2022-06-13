@@ -27,10 +27,10 @@ def semantic_match(
         target_text_chunks: Iterable[str],
         *,
         match_n_closest: int = 3,
-        matching_confidence: float = 0.9,
-        positional_weight: float = 0.3,
-        matching_weight: float = 0.7,
-        semantic_weight: float = 1.0
+        matching_confidence: float = 0.4,
+        positional_weight: float = 0.2,
+        matching_weight: float = 0.5,
+        semantic_weight: float = 0.5
 ) -> Tuple[MatchingResult, ...]:
 
     source_text_chunks = tuple(source_text_chunks)

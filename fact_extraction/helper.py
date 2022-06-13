@@ -90,14 +90,12 @@ def get_fact_consistency(true_facts: Iterable[Entity], target_facts: Iterable[En
     for fact in target_facts:
         target_fact_mapping[fact.label].add(fact.text)
 
-    if not len(true_fact_mapping):
-        return 1.0
-
     res = []
     for target_label, target_label_facts in target_fact_mapping.items():
         for target_fact in target_label_facts:
             if not len(true_fact_mapping[target_label]):
-                return 1.0
+                res.append(1.0)
+                continue
 
             matcher = partial(get_matcher(target_label), seq2=target_fact)
             fact_consistency = max(map(matcher, true_fact_mapping[target_label]))
