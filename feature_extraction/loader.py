@@ -6,7 +6,6 @@ import nltk
 import pandas as pd
 from numpy.typing import NDArray
 from pandas import DataFrame
-from scipy.spatial.distance import minkowski
 from tqdm import tqdm
 
 from fact_extraction.entity_extractor import EntityExtractor
@@ -40,7 +39,7 @@ def create_features(from_file: str, *, start_idx: int = 0, end_idx: Optional[int
         # feats['embedding_distance'] = minkowski(row['src_emb'], row['fake_emb'], 2)
 
         if x is None:
-            x = DataFrame(columns=set(feats.keys()))
+            x = DataFrame(columns=sorted(set(feats.keys())))
         x = x.append(feats, ignore_index=True)
 
     return x.to_numpy(), y
