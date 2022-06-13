@@ -98,5 +98,31 @@ requirements.txt - зависимости проекта
 web_app.py - код веб-приложения
 
 
+##  Метрики
 
-
+Качество по ROC AUC для модели LGBM: 95%.
+Гиперпараметры:
+{
+       "max_depth": -1,
+        "min_child_samples": 19,
+        "min_child_weight": 0.001,
+        "min_split_gain": 0.0,
+        "n_estimators": 30,
+        "n_jobs": -1,
+        "num_leaves": 176,
+        "objective": null,
+        "random_state": null,
+        "reg_alpha": 0.0,
+        "reg_lambda": 0.0,
+        "silent": "warn",
+        "subsample": 1.0,
+        "subsample_for_bin": 200000,
+        "subsample_freq": 0,
+        "lambda_l1": 0.10760824726959102,
+        "lambda_l2": 1.220269679867742e-08,
+        "feature_fraction": 0.6389666241304643,
+        "bagging_fraction": 0.523470095488254,
+        "bagging_freq": 6
+    },
+    "score": 0.9502150848765432
+}
