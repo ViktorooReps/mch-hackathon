@@ -5,7 +5,6 @@ from typing import Iterable, Tuple, Optional, Dict, Set
 import numpy as np
 
 from fact_extraction.model import Entity, get_matcher, EntityType
-from feature_extraction.sequence_matcher.match import soft_match
 
 months = [
     "май", "мая", "маю", "маем", "мае",
@@ -95,9 +94,13 @@ def get_fact_consistency(true_facts: Iterable[Entity], target_facts: Iterable[En
         return 1.0
 
     res = []
-    for target_fact in target_strs:
-        matcher = partial(get_matcher(), seq2=target_fact)
-        fact_consistency = max(map(matcher, true_strs))
-        res.append(fact_consistency)
+    for target_label, target_label_facts in target_fact_mapping.items():
+        for target_fact in target_label_facts:
+            matcher = partial(get_matcher(target_label), seq2=target_fact)
+            fact_consistency = max(map(matcher, true_fact_mapping[target_label]))
+            res.append(fact_consistency)
+
+    if not len(res):
+        return 1.0
 
     return sum(res) / len(res)

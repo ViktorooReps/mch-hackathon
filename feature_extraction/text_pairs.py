@@ -49,7 +49,10 @@ def get_entity_count(
     def type_filter(entity: Entity) -> bool:
         return entity.label == entity_type
 
-    return np.ndarray(tuple(map(len, filter(type_filter, chunk_entities))))
+    result = []
+    for entities in chunk_entities:
+        result.append(len(tuple(filter(type_filter, entities))))
+    return np.array(result)
 
 
 def get_unmatched_entities(
@@ -63,10 +66,14 @@ def get_unmatched_entities(
         source_entity_strs = {entity.text for entity in source_entities if entity.label == entity_type}
         target_entity_strs = {entity.text for entity in target_entities if entity.label == entity_type}
 
+        if not len(source_entity_strs):
+            result.append(0.0)
+            continue
+
         unmatched = source_entity_strs.difference(target_entity_strs)
         result.append(len(unmatched) / len(source_entity_strs))
 
-    return np.ndarray(result)
+    return np.array(result)
 
 
 def get_match_for_entity_type(
@@ -85,7 +92,7 @@ def get_match_for_entity_type(
             target_facts=filter(type_filter, article_entities)
         ))
 
-    return np.ndarray(result)
+    return np.array(result)
 
 
 class ArticleOriginFeatureExtractor:
@@ -94,11 +101,14 @@ class ArticleOriginFeatureExtractor:
             self,
             text_chunker: Callable[[str], Iterable[str]],
             entity_extractor: EntityExtractor,
-            feature_extractor: Callable[[str], Tensor]
+            feature_extractor: Callable[[str], Tensor],
+            *,
+            fake_score_threshold: float = 0.5
     ):
         self._chunker = text_chunker
         self._entity_extractor = entity_extractor
         self._feature_extractor = feature_extractor
+        self._fake_score_threshold = fake_score_threshold
 
     def extract_features(self, article_text: str, possible_origins: Iterable[str]) -> OriginComparisonResults:
         possible_origins = tuple(possible_origins)
@@ -138,7 +148,7 @@ class ArticleOriginFeatureExtractor:
                 target=origin_match.target,
                 matched=(fact_score is not None),
                 fact_score=fact_score,
-                is_fake=None if fact_score is None else fact_score < 0.5
+                is_fake=None if fact_score is None else fact_score < self._fake_score_threshold
             ))
 
         result = OriginComparisonResults(matches=tuple(scored_matches), matched_proportion=origin_matched_proportion, features={})
@@ -272,3 +282,4 @@ if __name__ == '__main__':
         if m.target is not None:
             print(f'Article: {m.target.text}')
         print('-' * 20)
+    print(res)
