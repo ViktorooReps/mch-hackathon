@@ -13,14 +13,14 @@ class Example(BaseModel):
     text: str
     title: str
 
-    authors: Optional[Tuple[str, ...]]
+    authors: Optional[Tuple[str]]
     url: Optional[str]
     source_url: Optional[str]
-    tags: Optional[Tuple[str, ...]]
+    tags: Optional[Tuple[str]]
 
     # meta
 
-    keywords: Optional[Tuple[str, ...]]
+    keywords: Optional[Tuple[str]]
     description: Optional[str]
 
 
