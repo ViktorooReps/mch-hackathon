@@ -1,4 +1,4 @@
-from feature_extraction.source_finder import *
+from bank_embeddings.comparator import Comparator
 from feature_extraction.bert import BertFeatureExtractor
 from feature_extraction.text_pairs import *
 from fact_extraction.entity_extractor import EntityExtractor
@@ -6,11 +6,11 @@ import pandas as pd
 import nltk
 import joblib
 import os
+import numpy as np
 
 class Pipeline:
-    def __init__(self):
-        self.white_list = pd.read_pickle('white_list.pkl')
-        self.sf = SourceFinder(white_list=self.white_list)
+    def __init__(self, data_dir='bank_embeddings/input', top_k=10, use_title=False):
+        self.sf = Comparator(data_dir)
         self.aofe = ArticleOriginFeatureExtractor(
             text_chunker=nltk.tokenize.sent_tokenize,
             entity_extractor=EntityExtractor(),
@@ -18,10 +18,14 @@ class Pipeline:
         self.exp_path = 'lgbm_model/exp_4'
         self.model = joblib.load(os.path.join(self.exp_path, 'lgbm_model.pkl'))
         self.threshold = 0.5
+        self.top_k = top_k
+        self.use_title = use_title
 
     def __call__(self, art):
-        article_info, distance = self.sf.find_source(art)
-        po = article_info['text'].values
+        titles, texts, similarities = self.sf.get_source(art, top_k=self.top_k, \
+                                                        use_title=self.use_title)
+        ### ????
+        po = texts
         res = self.aofe.extract_features(art, po)
         features = res.features
         features_sorted = dict(sorted(features.items(), key=lambda x: x[0]))
@@ -37,4 +41,3 @@ def pipeline_factory():
     pipeline = Pipeline()
 
     return pipeline
-
