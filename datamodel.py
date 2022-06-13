@@ -6,6 +6,9 @@ from pydantic import BaseModel
 
 
 class Example(BaseModel):
+    """Примеры основаны на моделях pydantic для удобной сериализации/десериализации
+    https://pydantic-docs.helpmanual.io/
+    """
     date: Optional[datetime.datetime]
     text: str
     title: str
@@ -22,6 +25,7 @@ class Example(BaseModel):
 
 
 class JsonlDataset:
+    """Хранилище примеров с возможностью сериализации и десериализации"""
 
     def __init__(self, examples: Iterable[Example], dataset_file: Optional[Path] = None):
         self._dataset_file = dataset_file
