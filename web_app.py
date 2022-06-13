@@ -8,6 +8,9 @@ from PIL import Image
 
 from detection_module import pipeline_factory
 
+import nltk
+nltk.download('punkt')
+
 subprocess.run([f"/bin/bash", "deploy_init.sh"])
 
 fake_probability = pipeline_factory()
