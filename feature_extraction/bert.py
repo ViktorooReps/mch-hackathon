@@ -35,7 +35,9 @@ class BertFeatureExtractor:
             """
             return cut_token(self.tokenizer(text, return_tensors=return_tensors))
 
-        return pipeline('feature-extraction', tokenizer=tokenizer_with_cut, model=self.model, device=0)
+        if torch.cuda.is_available():
+            return pipeline('feature-extraction', tokenizer=tokenizer_with_cut, model=self.model, device=0)
+        return pipeline('feature-extraction', tokenizer=tokenizer_with_cut, model=self.model)
 
     def extract_features(self, text: str) -> Tensor:
         """

@@ -28,5 +28,5 @@ if __name__ == '__main__':
     X = np.concatenate(all_X, axis=0)
     y = np.concatenate(all_y, axis=0)
 
-    print(X.shape)
-    print(y.shape)
+    with open('7200.pkl', 'wb') as f:
+        pickle.dump((X, y), f, pickle.HIGHEST_PROTOCOL)
