@@ -11,7 +11,8 @@ from detection_module import pipeline_factory
 import nltk
 nltk.download('punkt')
 
-subprocess.run([f"/bin/bash", "deploy_init.sh"])
+subprocess.run([f"/bin/bash", "deploy_init.sh"], shell=True)
+
 
 fake_probability = pipeline_factory()
 
