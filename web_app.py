@@ -13,9 +13,8 @@ def cache_this():
     import nltk
     nltk.download('punkt')
     subprocess.run([f"/bin/bash", "deploy_init.sh"])
-    return pipeline_factory()
 
-fake_probability = cache_this()
+fake_probability = pipeline_factory()
 
 col1, col2, col3 = st.columns([4, 6, 1])
 with col1:
