@@ -140,6 +140,10 @@ class ArticleOriginFeatureExtractor:
             matching_result = semantic_match(self._feature_extractor, po_chunks, article_chunks)
             matched_proportion = self._matched_proportion(matching_result)
 
+            print(f'Article text: {article_text[:100]}')
+            print(f'Origin text: {po_text[:100]}')
+            print(f'Matched: {matched_proportion}\n')
+
             if matched_proportion >= origin_matched_proportion:
                 origin_matched_proportion = matched_proportion
                 origin_matching_result = matching_result
@@ -149,6 +153,7 @@ class ArticleOriginFeatureExtractor:
             return match.source is not None and match.target is not None
 
         if origin_matching_result is None:
+            print('No origin')
             raise ValueError('No origin.')
 
         origin_entities = self._entity_extractor.get_entities(origin_text)

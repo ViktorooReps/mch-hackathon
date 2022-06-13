@@ -37,6 +37,8 @@ class Pipeline:
             arr.append(features_sorted[key])
         features = np.array(arr)
         probabilities = self.model.predict_proba(features.reshape(1, -1))
+
+        print(f'FAKE: {probabilities[0][1]}')
         return res, probabilities[0][1], self.threshold
 
 

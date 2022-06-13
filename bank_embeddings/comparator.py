@@ -5,7 +5,7 @@ from os.path import join
 
 import warnings
 warnings.filterwarnings("ignore")
-from feature_extraction.bert import FeatureExtractor
+from feature_extraction.bert import BertFeatureExtractor
 
 class Comparator():
     def __init__(self, data_dir):
@@ -16,7 +16,7 @@ class Comparator():
         self.title_source_embeddings = title_embeddings
         self.text_source_embeddings = text_embeddings
 
-        self.embedder = FeatureExtractor()
+        self.embedder = BertFeatureExtractor()
 
     def prepare_embeddings(self, data_dir):
         train_meta = pd.read_csv(join(data_dir, f'train.csv'))
@@ -71,6 +71,4 @@ if __name__ == "__main__":
     data = "\n".join(data)
     titles, texts, similarities = comparator.get_source(data, top_k=top_k, use_title=use_title)
     for title, text, similarity in zip(titles, texts, similarities):
-            print(f"{title:>100} : {similarity:.4f}")
-
-    
+        print(f"{title:>100} : {similarity:.4f}")

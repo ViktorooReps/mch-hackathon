@@ -1,12 +1,13 @@
-from feature_extraction.bert import BertFeatureExtractor
+from pandas import DataFrame
+
 from bank_embeddings.comparator import Comparator
 import pandas as pd
 import numpy as np
 import torch
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import pairwise_distances
+
+
 class SourceFinder:
-    def __init__(self, white_list: pd.core.frame.DataFrame, device='cpu'):
+    def __init__(self, white_list: DataFrame, device='cpu'):
         self.device = 'cpu'
         if device == 'cuda':
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -14,9 +15,9 @@ class SourceFinder:
         self.df['date'] = pd.to_datetime(self.df['date'])
         self.df = self.df.sort_values('date')
         self.df.index = np.arange(len(self.df))
-        self.fe = BertFeatureExtractor()
         self.features = self.make_features()
         self.article_numbers = self.make_art_nums()
+        self.com = Comparator(self.df, None, self.features)
 
     def get_white_list(self):
         return self.df
@@ -35,7 +36,5 @@ class SourceFinder:
         return self.article_numbers
 
     def find_source(self, text):
-        cmp = Comparator(0, 0, self.features)
-        art_feature = np.array(self.fe.extract_features(text)).reshape(1, -1)
-        indices, similarity = cmp.search_nearest_neightbours(art_feature, top_k=5, use_title=False)
-        return (self.df.iloc[indices], similarity[indices])
+        return self.com.get_source(text, top_k=5, use_title=False)
+

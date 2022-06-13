@@ -3,7 +3,7 @@ import torch
 import numpy as np
 
 ## INFERENCE CPU ONLY!
-class FeatureExtractor:
+class BertFeatureExtractor:
     def __init__(self, model_name="DeepPavlov/rubert-base-cased", token_size=512):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
@@ -28,7 +28,7 @@ class FeatureExtractor:
 
 
 if __name__ == '__main__':
-    fe = FeatureExtractor()
+    fe = BertFeatureExtractor()
     embedding = fe.extract_features("Территории возле станций БКЛ «Сокольники», «Рижская» и «Марьина Роща» благоустроят")
     print(embedding.shape)
     print(embedding)

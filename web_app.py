@@ -8,11 +8,15 @@ from PIL import Image
 from detection_module import pipeline_factory
 
 
+skip_download = True
+
+
 @st.experimental_singleton
 def cache_this():
-    import nltk
-    nltk.download('punkt')
-    subprocess.run([f"/bin/bash", "deploy_init.sh"])
+    if not skip_download:
+        import nltk
+        nltk.download('punkt')
+        subprocess.run([f"/bin/bash", "deploy_init.sh"])
     return pipeline_factory()
 
 
