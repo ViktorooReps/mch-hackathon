@@ -24,7 +24,10 @@ class Pipeline:
     def __call__(self, art):
         titles, texts, similarities = self.sf.get_source(art, top_k=self.top_k, \
                                                         use_title=self.use_title)
-        ### ????
+        print('*' * 100)
+        for title, text, similarity in zip(titles, texts, similarities):
+            print(f"{title:>100} : {similarity:.4f}")
+        print('*' * 100)
         po = texts
         res = self.aofe.extract_features(art, po)
         features = res.features
