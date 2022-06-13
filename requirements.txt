@@ -1,5 +1,5 @@
 Cython==0.29.30
-pydantic==1.9.1
+pydantic
 newspaper3k==0.2.8
 pytz==2022.1
 selenium==4.2.0
