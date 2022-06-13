@@ -2,13 +2,14 @@ import streamlit as st
 import io
 
 from newspaper import Article
+from PIL import Image
 
-from feature_extraction.sequence_matcher.semantic import MatchingResult, TextChunk
-from feature_extraction.text_pairs import OriginComparisonResults
+from feature_extraction.sequence_matcher.semantic import TextChunk
+from feature_extraction.text_pairs import ScoredMatchingResult, OriginComparisonResults
 
 fake_chunks = OriginComparisonResults(
     matches=(
-        MatchingResult(
+        ScoredMatchingResult(
             source=TextChunk(
                 relative_position=0,
                 text_position=0,
@@ -18,17 +19,23 @@ fake_chunks = OriginComparisonResults(
                 relative_position=0,
                 text_position=0,
                 text='fjdfkdjsfjksdjfkdjfkjsdkfjds'
-            )
+            ),
+            matched = True,
+            is_fake = True,
+            fact_score = None
         ),
-        MatchingResult(
+        ScoredMatchingResult(
             source=TextChunk(
                 relative_position=1,
                 text_position=1,
                 text='2dfjfkjdfkjdfjdf\nkjfdkdfkdfjdkf\nkjfkdjfkdjfkd\n'
             ),
-            target=None
+            target=None,
+            matched=False,
+            fact_score = None,
+            is_fake = None
         ),
-        MatchingResult(
+        ScoredMatchingResult(
             source=TextChunk(
                 relative_position=2,
                 text_position=2,
@@ -37,20 +44,26 @@ fake_chunks = OriginComparisonResults(
             target=TextChunk(
                 relative_position=1,
                 text_position=1,
-                text='2'
-            )
+                text='fdfasdfdasfsafa\ndsafsafa'
+            ),
+            matched = True,
+            is_fake = False,
+            fact_score = None
         ),
-        MatchingResult(
+        ScoredMatchingResult(
             source=None,
             target=TextChunk(
                 relative_position=2,
                 text_position=2,
-                text='3'
-            )
+                text='fdafasdfsa\nsdafasf\nadfasdfdas\ndfasf'
+            ),
+            matched = False,
+            fact_score = None,
+            is_fake = None
         )
     ),
-    fact_scores=(1.0, 0.2),
-    matched_proportion=0.7
+    matched_proportion=0.7,
+    features = None
 )
 
 
@@ -58,7 +71,17 @@ def fake_probability(text):
     return 1, 0.5, fake_chunks.matches
 
 
-st.title('kadmus dev #5 application')
+col1, col2, col3 = st.columns([4, 6, 1])
+with col1:
+    st.write("")
+with col2:
+    logo = Image.open('source_logo.png')
+    st.image(logo, output_format='PNG', width=150)
+with col3:
+    st.write("")
+
+st.markdown("<h1 style='text-align: center;'>kadmus dev #5 application</h1>", unsafe_allow_html=True)
+st.markdown("***")
 text = ""
 
 option = st.selectbox(
@@ -94,16 +117,21 @@ if st.button('Accept'):
 
         src_header, orig_header = st.columns(2)
         with src_header:
-            st.subheader("Source text")
+            st.subheader("Source Text")
         with orig_header:
-            st.subheader("Your text")
+            st.subheader("Your Text")
 
+        st.markdown("""---""")
         for m in matches:
             col_src, col_orig = st.columns(2)
 
             color = 'Green'
-            if m.source is None or m.target is None:
+            if not m.matched:
                 color = 'Gray'
+            elif m.is_fake:
+                color = 'Red'
+            else:
+                color = 'Green'
 
             with col_src:
                 if m.source is not None:
@@ -113,34 +141,8 @@ if st.button('Accept'):
                 if m.target is not None:
                     output = '<p style="color:{};">{}</p>'.format(color, m.target.text)
                     st.markdown(output, unsafe_allow_html=True)
+            st.markdown("""---""")
     except:
         st.markdown("**The source text have not been found**")
         st.subheader("Your text:")
         st.write(text)
-
-    #if matches is not None:
-    #    col_src, col_orig = st.columns(2)
-    #    with col_src:
-    #        st.subheader("Source text")
-    #        #st.write(src_text)
-    #        for m in matches:
-    #            if m.source is not None:
-    #                output = '<p style="color:Green;">{}</p>'.format(m.source.text)
-    #                st.markdown(output, unsafe_allow_html=True)
-    #    with col_orig:
-    #        st.subheader("Your text")
-    #        for m in matches:
-    #            if m.target is not None:
-    #                output = '<p style="color:Green;">{}</p>'.format(m.target.text)
-    #                st.markdown(output, unsafe_allow_html=True)
-    #else:
-    #    st.markdown("**The source text have not been found**")
-    #    st.subheader("Your text:")
-    #    st.write(text)
-    #if is_fake(text):
-    #    st.subheader("Fake")
-    #else:
-    #    st.subheader("Not fake")
-
-    #st.markdown("**Original text:**")
-    #st.write(text)
