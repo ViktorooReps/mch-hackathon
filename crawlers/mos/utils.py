@@ -53,6 +53,12 @@ WINDOW_SIZE = "1920,1080"
 
 
 def get_urls(*, timeout: float = 0.0, patience: int = 10) -> Iterable[str]:
+    """Собирает ссылки на статьи с mos.ru
+
+    :param timeout: - время ожидания в секундах между запросами
+    :param patience: - количество повторных запросов при неудаче
+    :return: генератор собранных ссылок на статьи
+    """
     request_builder = RequestBuilder('https://www.mos.ru/search?')
     args = {
         'category': 'newsfeed',

@@ -19,7 +19,16 @@ def crawl_articles(
         date_start: datetime.datetime = DATE_START,
         date_end: datetime.datetime = DATE_END
 ) -> Iterable[Article]:
+    """Краулит и парсит статьи с помощью пакета newspaper
+    https://newspaper.readthedocs.io/en/latest/
 
+    :param article_urls: - ссылки на статьи
+    :param ignore_date: - не фильтровать статьи по дате
+    :param sorted_by_date: - отсортированы ли ссылки по дате публикации
+    :param date_start: - ограничение по датам снизу
+    :param date_end: - ограничение по датам сверху
+    :return: генератор распарсенных статей
+    """
     for article in map(Article, article_urls):
         article.download()
         article.parse()
