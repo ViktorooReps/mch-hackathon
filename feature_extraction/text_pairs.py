@@ -1,4 +1,5 @@
 from functools import partial
+from pprint import pprint
 from typing import Iterable, Callable, Optional, Tuple, NamedTuple, Dict, List
 
 import nltk.tokenize
@@ -282,4 +283,4 @@ if __name__ == '__main__':
         if m.target is not None:
             print(f'Article: {m.target.text}')
         print('-' * 20)
-    print(res)
+    pprint(res.features)

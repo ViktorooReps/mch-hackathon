@@ -96,6 +96,9 @@ def get_fact_consistency(true_facts: Iterable[Entity], target_facts: Iterable[En
     res = []
     for target_label, target_label_facts in target_fact_mapping.items():
         for target_fact in target_label_facts:
+            if not len(true_fact_mapping[target_label]):
+                return 1.0
+
             matcher = partial(get_matcher(target_label), seq2=target_fact)
             fact_consistency = max(map(matcher, true_fact_mapping[target_label]))
             res.append(fact_consistency)

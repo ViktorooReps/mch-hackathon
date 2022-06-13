@@ -1,7 +1,12 @@
 from abs_optuna_tuner import AbstractOptunaTuner
 from sklearn.datasets import load_breast_cancer
 
+
 class OptunaTuner(AbstractOptunaTuner):
+
+    def load_test(self):
+        pass
+
     def load_train_val(self):
         """
             Для тренировки нужно заимплементить этот метод, - 
