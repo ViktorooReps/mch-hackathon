@@ -41,20 +41,15 @@ def get_chunk_entities(chunk: Optional[TextChunk], entities: Iterable[Entity]) -
             yield entity
 
 
-def get_entity_origin_count(
+def get_entity_count(
         entity_type: EntityType,
-        origin_chunk_entities: Iterable[Tuple[Entity, ...]],
-        origin_entities: Iterable[Entity]
+        chunk_entities: Iterable[Tuple[Entity, ...]]
 ) -> NDArray:
-    pass
 
+    def type_filter(entity: Entity) -> bool:
+        return entity.label == entity_type
 
-def get_entity_article_count(
-        entity_type: EntityType,
-        article_chunk_entities: Iterable[Tuple[Entity, ...]],
-        article_entities: Iterable[Entity]
-) -> NDArray:
-    pass
+    return np.ndarray(tuple(map(len, filter(type_filter, chunk_entities))))
 
 
 def get_unmatched_entities(
@@ -150,8 +145,9 @@ class ArticleOriginFeatureExtractor:
         self._fill_features(result, origin_entities, article_entities)
         return result
 
-    def _fill_features(self, results: OriginComparisonResults, origin_entities: Iterable[Entity], article_entities: Iterable[Entity]):
-        chunk_features = {}
+    @staticmethod
+    def _fill_features(results: OriginComparisonResults, origin_entities: Iterable[Entity], article_entities: Iterable[Entity]):
+        chunk_features: Dict[str, NDArray] = {}
 
         origin_entities = tuple(origin_entities)
         article_entities = tuple(article_entities)
@@ -166,11 +162,11 @@ class ArticleOriginFeatureExtractor:
             entity_type_name = entity_type.value
 
             feat_name = f'{entity_type_name}_ent_origin_count'
-            src_count = get_entity_origin_count(entity_type, origin_chunk_entities, origin_entities)
+            src_count = get_entity_count(entity_type, origin_chunk_entities)
             chunk_features[feat_name] = src_count
 
             feat_name = f'{entity_type_name}_ent_article_count'
-            art_count = get_entity_article_count(entity_type, article_chunk_entities, article_entities)
+            art_count = get_entity_count(entity_type, article_chunk_entities)
             chunk_features[feat_name] = art_count
 
             feat_name = f'{entity_type_name}_ent_count_diff'
@@ -184,6 +180,10 @@ class ArticleOriginFeatureExtractor:
 
             feat_name = f'{entity_type_name}_avg_match'
             chunk_features[feat_name] = get_match_for_entity_type(entity_type, article_chunk_entities, origin_chunk_entities)
+
+        for aggregate_function, function_name in ((np.mean, 'mean'), (np.max, 'max'), (np.min, 'min')):
+            for feat_name, feat_values in chunk_features.items():
+                results.features[feat_name + '_' + function_name] = aggregate_function(feat_values)
 
     @staticmethod
     def _matched_proportion(matched: Iterable[MatchingResult]) -> float:
