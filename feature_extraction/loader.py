@@ -1,4 +1,5 @@
 import pickle
+from argparse import ArgumentParser
 from typing import Tuple, Optional
 
 import nltk
@@ -13,7 +14,7 @@ from feature_extraction.bert import BertFeatureExtractor
 from feature_extraction.text_pairs import ArticleOriginFeatureExtractor
 
 
-def create_features(from_file: str, *, first_n: Optional[int] = None) -> Tuple[NDArray, NDArray]:
+def create_features(from_file: str, *, start_idx: int = 0, end_idx: Optional[int] = None) -> Tuple[NDArray, NDArray]:
     feature_extractor = ArticleOriginFeatureExtractor(
         text_chunker=nltk.tokenize.sent_tokenize,
         entity_extractor=EntityExtractor(),
@@ -22,17 +23,19 @@ def create_features(from_file: str, *, first_n: Optional[int] = None) -> Tuple[N
 
     csv_data = pd.read_csv(from_file)
 
-    if first_n is None:
-        first_n = len(csv_data.index)
-    first_n = min(len(csv_data.index), first_n)
+    if end_idx is None:
+        end_idx = len(csv_data.index)
+    end_idx = min(len(csv_data.index), end_idx)
 
-    y = csv_data['label'].to_numpy()[:first_n]
+    total = end_idx - start_idx
+
+    y = csv_data['label'].to_numpy()[start_idx:end_idx]
     y: NDArray
-    y.reshape((first_n, 1))
+    y.reshape((total, 1))
 
     x: Optional[DataFrame] = None
 
-    for row_idx, row in tqdm(csv_data[:first_n].iterrows(), total=first_n):
+    for row_idx, row in tqdm(csv_data[start_idx:end_idx].iterrows(), total=total):
         feats = feature_extractor.extract_features(row['fake_text'], [row['src_text']]).features
         # feats['embedding_distance'] = minkowski(row['src_emb'], row['fake_emb'], 2)
 
@@ -44,6 +47,10 @@ def create_features(from_file: str, *, first_n: Optional[int] = None) -> Tuple[N
 
 
 if __name__ == '__main__':
-    features = create_features('train_paired_data.csv')
-    with open('cached.pkl', 'wb') as f:
+    parser = ArgumentParser()
+    parser.add_argument('--start_idx', type=int, default=0)
+    parser.add_argument('--end_idx', type=int, default=None)
+    args = parser.parse_args()
+    features = create_features('train_paired_data.csv', start_idx=args.start_idx, end_idx=args.end_idx)
+    with open(f'cached_{args.start_idx}_{args.end_idx}.pkl', 'wb') as f:
         pickle.dump(features, f, pickle.HIGHEST_PROTOCOL)
