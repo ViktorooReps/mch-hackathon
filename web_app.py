@@ -6,11 +6,11 @@ import sys
 from newspaper import Article
 from PIL import Image
 
-from detection_module import fake_detection
-from feature_extraction.sequence_matcher.semantic import TextChunk
-from feature_extraction.text_pairs import ScoredMatchingResult, OriginComparisonResults
+from detection_module import pipeline_factory
 
 subprocess.run([f"{sys.executable}", "deploy_init.sh"])
+
+fake_probability = pipeline_factory()
 
 col1, col2, col3 = st.columns([4, 6, 1])
 with col1:
@@ -47,7 +47,6 @@ elif option == "Article URL":
 if st.button('Accept'):
     try:
         fake_proba, threshold, matches = fake_probability(text)
-        fake_detection(text)
 
         result = "Not fake"
         if fake_proba >= threshold:
