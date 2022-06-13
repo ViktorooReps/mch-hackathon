@@ -8,7 +8,7 @@ from PIL import Image
 
 from detection_module import pipeline_factory
 
-subprocess.run([f"{sys.executable}", "deploy_init.sh"])
+subprocess.run([f"/bin/bash", "deploy_init.sh"])
 
 fake_probability = pipeline_factory()
 
