@@ -74,7 +74,7 @@ if st.button('Accept'):
             st.subheader("Your Text")
 
         st.markdown("""---""")
-        for m in matches:
+        for m in matches.matches:
             col_src, col_orig = st.columns(2)
 
             color = 'Green'
