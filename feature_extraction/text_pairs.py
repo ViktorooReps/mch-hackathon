@@ -15,19 +15,19 @@ from feature_extraction.sequence_matcher.semantic import MatchingResult, semanti
 
 
 class ScoredMatchingResult(NamedTuple):
-    source: Optional[TextChunk]
-    target: Optional[TextChunk]
-    matched: bool
+    source: Optional[TextChunk]  # кусок текста статьи первоисточника
+    target: Optional[TextChunk]  # соответствующий кусок статьи, подозревающейся на фейковость
+    matched: bool  # было ли совпадение кусков
 
     # are present only if matched is True
-    fact_score: Optional[float]
-    is_fake: Optional[bool]
+    fact_score: Optional[float]  # оценка правдивости упомянутых фактов
+    is_fake: Optional[bool]  # вердикт о фейковости
 
 
 class OriginComparisonResults(NamedTuple):
-    matches: Tuple[ScoredMatchingResult, ...]
-    matched_proportion: float
-    features: Dict[str, float]
+    matches: Tuple[ScoredMatchingResult, ...]  # совпадения отсортированные в порядке упомянания в текстах
+    matched_proportion: float  # доля кусков текста, для которых было найдено совпадение
+    features: Dict[str, float]  # выделенные признаки
 
 
 # FIXME: possible bottleneck
@@ -100,6 +100,8 @@ def get_match_for_entity_type(
 
 class ArticleOriginFeatureExtractor:
 
+    """Класс для извлечения признаков для обучения ML модели из пар (текст-первоисточник, текст)"""
+
     def __init__(
             self,
             text_chunker: Callable[[str], Iterable[str]],
@@ -108,12 +110,26 @@ class ArticleOriginFeatureExtractor:
             *,
             fake_score_threshold: float = 0.5
     ):
+        """
+
+        :param text_chunker: - функция, разделяющая текст на куски для последующего соответствия
+        :param entity_extractor: - извлекатель сущностей
+        :param feature_extractor: - извлекатель семантических признаков
+        :param fake_score_threshold: - максимальное значение оценки несовпадения фактов, чтобы считать, что в данном куске текста
+            присутствует фейк (не влияет на извлеченные признаки)
+        """
         self._chunker = text_chunker
         self._entity_extractor = entity_extractor
         self._feature_extractor = feature_extractor
         self._fake_score_threshold = fake_score_threshold
 
     def extract_features(self, article_text: str, possible_origins: Iterable[str]) -> OriginComparisonResults:
+        """ Извлечь признаки и сопоставление кусков текста из текста статьи и возможных первоисточников
+
+        :param article_text: - текст статьи
+        :param possible_origins: - текст возможных первоисточников
+        :return: OriginComparisonResults
+        """
         possible_origins = tuple(possible_origins)
         article_chunks = self._chunker(article_text)
 
