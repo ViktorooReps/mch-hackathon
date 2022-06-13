@@ -1,20 +1,23 @@
 import streamlit as st
 import io
 import subprocess
-import sys
 
 from newspaper import Article
 from PIL import Image
 
 from detection_module import pipeline_factory
 
-@st.cache
+
+@st.experimental_singleton
 def cache_this():
     import nltk
     nltk.download('punkt')
     subprocess.run([f"/bin/bash", "deploy_init.sh"])
+    return pipeline_factory()
 
-fake_probability = pipeline_factory()
+
+fake_probability = cache_this()
+
 
 col1, col2, col3 = st.columns([4, 6, 1])
 with col1:
