@@ -1,5 +1,5 @@
 from bank_embeddings.comparator import Comparator
-from feature_extraction.bert import BertFeatureExtractor
+from bank_embeddings.feature_extraction.bert import BertFeatureExtractor
 from feature_extraction.text_pairs import *
 from fact_extraction.entity_extractor import EntityExtractor
 import pandas as pd
