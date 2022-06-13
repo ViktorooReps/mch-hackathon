@@ -1,4 +1,5 @@
 from feature_extraction.bert import BertFeatureExtractor
+from bank_embeddings.comparator import Comparator
 import pandas as pd
 import numpy as np
 import torch
@@ -36,9 +37,13 @@ class SourceFinder:
         return self.article_numbers
 
     def find_source(self, text):
-        self.cls_model.fit(self.features, self.article_numbers)
+        cmp = Comparator(0, 0, self.features)
         art_feature = np.array(self.fe.extract_features(text)).reshape(1, -1)
-        art_num = self.cls_model.predict(art_feature).reshape(1, -1)[0]
-        source_feature = np.array(self.df.loc[art_num, 'features'].values[0]).reshape(1, -1)
-        distance = pairwise_distances(art_feature, source_feature, metric=self.cls_model.metric)
-        return (self.df.iloc[art_num], distance)
+        indices, similarity = cmp.search_nearest_neightbours(art_feature, top_k=5, use_title=False)
+        return (self.df.iloc[indices], similarity[indices])
+        #self.cls_model.fit(self.features, self.article_numbers)
+        #art_feature = np.array(self.fe.extract_features(text)).reshape(1, -1)
+        #art_num = self.cls_model.predict(art_feature).reshape(1, -1)[0]
+        #source_feature = np.array(self.df.loc[art_num, 'features'].values[0]).reshape(1, -1)
+        #distance = pairwise_distances(art_feature, source_feature, metric=self.cls_model.metric)
+        #return (self.df.iloc[art_num], distance)

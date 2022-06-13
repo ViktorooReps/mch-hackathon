@@ -35,7 +35,7 @@ class BertFeatureExtractor:
             """
             return cut_token(self.tokenizer(text, return_tensors=return_tensors))
 
-        return pipeline('feature-extraction', tokenizer=tokenizer_with_cut, model=self.model)
+        return pipeline('feature-extraction', tokenizer=tokenizer_with_cut, model=self.model, device=0)
 
     def extract_features(self, text: str) -> Tensor:
         """

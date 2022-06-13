@@ -1,11 +1,12 @@
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics import pairwise_distances
 import numpy as np
 import pandas as pd
 from os.path import join
 
 import warnings
 warnings.filterwarnings("ignore")
-from feature_extraction.bert import FeatureExtractor
+from feature_extraction.bert import BertFeatureExtractor
 
 class Comparator():
     def __init__(self, dataframe: pd.DataFrame, title_embeddings: np.array, text_embeddings: np.array):
@@ -19,7 +20,7 @@ class Comparator():
         self.title_source_embeddings = title_embeddings
         self.text_source_embeddings = text_embeddings
 
-        self.embedder = FeatureExtractor()
+        self.embedder = BertFeatureExtractor()
 
     def get_source(self, text: str, *, top_k: int = 1, use_title: bool = False):
         """
@@ -46,10 +47,11 @@ class Comparator():
         if use_title:
             similarity = cosine_similarity([embedding], self.title_source_embeddings)
         else:
-            similarity = cosine_similarity([embedding], self.text_source_embeddings)
+            print(embedding.shape, self.text_source_embeddings.shape)
+            similarity = pairwise_distances(embedding, self.text_source_embeddings, metric='minkowski')
         similarity = similarity[0]
         indices = np.argsort(similarity)
-        indices = indices[-top_k:]
+        indices = indices[:top_k]
         return indices, similarity
 
 if __name__ == "__main__":
