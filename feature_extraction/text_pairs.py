@@ -37,9 +37,11 @@ def get_chunk_entities(chunk: Optional[TextChunk], entities: Iterable[Entity]) -
 
     chunk_start = chunk.text_position
     chunk_end = chunk_start + len(chunk.text)
-    for entity in entities:
+    for entity in sorted(entities, key=lambda e: e.start):
         if entity.start >= chunk.text_position and entity.end < chunk_end:
             yield entity
+        if entity.end >= chunk_end:
+            break
 
 
 def get_entity_count(
@@ -135,6 +137,7 @@ class ArticleOriginFeatureExtractor:
 
         origin_entities = self._entity_extractor.get_entities(origin_text)
         article_entities = self._entity_extractor.get_entities(article_text)
+
         fact_scores = self._get_fact_scores_for_matches(origin_entities, article_entities, filter(filter_matched, origin_matching_result))
 
         fact_score_iterator = iter(fact_scores)

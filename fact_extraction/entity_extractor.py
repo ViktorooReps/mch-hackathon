@@ -12,6 +12,8 @@ class EntityExtractor:
     
     def __init__(self, ru_space_path="ru_core_news_lg", 
                  en_space_path="en_core_web_lg"):
+
+        spacy.prefer_gpu()
         
         self.ru_nlp = spacy.load(ru_space_path)
         self.en_nlp = spacy.load(en_space_path)
