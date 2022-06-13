@@ -1,75 +1,16 @@
 import streamlit as st
 import io
+import subprocess
+import sys
 
 from newspaper import Article
 from PIL import Image
 
+from detection_module import fake_detection
 from feature_extraction.sequence_matcher.semantic import TextChunk
 from feature_extraction.text_pairs import ScoredMatchingResult, OriginComparisonResults
 
-fake_chunks = OriginComparisonResults(
-    matches=(
-        ScoredMatchingResult(
-            source=TextChunk(
-                relative_position=0,
-                text_position=0,
-                text='fdsafjasdkl;fjklasdjdfklasdjfkldjsafkljdfjjfjfjfjfjfjfjjjjkfj\njfjfjfjfjfjfjfjf\nfjfjfjfjf\njfjfjfjf\nfjfjfjfjfjfjf'
-            ),
-            target=TextChunk(
-                relative_position=0,
-                text_position=0,
-                text='fjdfkdjsfjksdjfkdjfkjsdkfjds'
-            ),
-            matched = True,
-            is_fake = True,
-            fact_score = None
-        ),
-        ScoredMatchingResult(
-            source=TextChunk(
-                relative_position=1,
-                text_position=1,
-                text='2dfjfkjdfkjdfjdf\nkjfdkdfkdfjdkf\nkjfkdjfkdjfkd\n'
-            ),
-            target=None,
-            matched=False,
-            fact_score = None,
-            is_fake = None
-        ),
-        ScoredMatchingResult(
-            source=TextChunk(
-                relative_position=2,
-                text_position=2,
-                text='fdkjsfkldsjfkjsdklfjsdklfjklsdf'
-            ),
-            target=TextChunk(
-                relative_position=1,
-                text_position=1,
-                text='fdfasdfdasfsafa\ndsafsafa'
-            ),
-            matched = True,
-            is_fake = False,
-            fact_score = None
-        ),
-        ScoredMatchingResult(
-            source=None,
-            target=TextChunk(
-                relative_position=2,
-                text_position=2,
-                text='fdafasdfsa\nsdafasf\nadfasdfdas\ndfasf'
-            ),
-            matched = False,
-            fact_score = None,
-            is_fake = None
-        )
-    ),
-    matched_proportion=0.7,
-    features = None
-)
-
-
-def fake_probability(text):
-    return 1, 0.5, fake_chunks.matches
-
+subprocess.run([f"{sys.executable}", "deploy_init.sh"])
 
 col1, col2, col3 = st.columns([4, 6, 1])
 with col1:
@@ -106,6 +47,7 @@ elif option == "Article URL":
 if st.button('Accept'):
     try:
         fake_proba, threshold, matches = fake_probability(text)
+        fake_detection(text)
 
         result = "Not fake"
         if fake_proba >= threshold:
@@ -146,3 +88,63 @@ if st.button('Accept'):
         st.markdown("**The source text have not been found**")
         st.subheader("Your text:")
         st.write(text)
+
+#fake_chunks = OriginComparisonResults(
+#    matches=(
+#        ScoredMatchingResult(
+#            source=TextChunk(
+#                relative_position=0,
+#                text_position=0,
+#                text='fdsafjasdkl;fjklasdjdfklasdjfkldjsafkljdfjjfjfjfjfjfjfjjjjkfj\njfjfjfjfjfjfjfjf\nfjfjfjfjf\njfjfjfjf\nfjfjfjfjfjfjf'
+#            ),
+#            target=TextChunk(
+#                relative_position=0,
+#                text_position=0,
+#                text='fjdfkdjsfjksdjfkdjfkjsdkfjds'
+#            ),
+#            matched = True,
+#            is_fake = True,
+#            fact_score = None
+#        ),
+#        ScoredMatchingResult(
+#            source=TextChunk(
+#                relative_position=1,
+#                text_position=1,
+#                text='2dfjfkjdfkjdfjdf\nkjfdkdfkdfjdkf\nkjfkdjfkdjfkd\n'
+#            ),
+#            target=None,
+#            matched=False,
+#            fact_score = None,
+#            is_fake = None
+#        ),
+#        ScoredMatchingResult(
+#            source=TextChunk(
+#                relative_position=2,
+#                text_position=2,
+#                text='fdkjsfkldsjfkjsdklfjsdklfjklsdf'
+#            ),
+#            target=TextChunk(
+#                relative_position=1,
+#                text_position=1,
+#                text='fdfasdfdasfsafa\ndsafsafa'
+#            ),
+#            matched = True,
+#            is_fake = False,
+#            fact_score = None
+#        ),
+#        ScoredMatchingResult(
+#            source=None,
+#            target=TextChunk(
+#                relative_position=2,
+#                text_position=2,
+#                text='fdafasdfsa\nsdafasf\nadfasdfdas\ndfasf'
+#            ),
+#            matched = False,
+#            fact_score = None,
+#            is_fake = None
+#        )
+#    ),
+#    matched_proportion=0.7,
+#    features = None
+#)
+
