@@ -1,13 +1,9 @@
 from feature_extraction.source_finder import *
 import pandas as pd
 
-def fake_detection(text, threshold = 0.5):
-    model_kwargs = {
-        'n_jobs': -1,
-        'n_neighbors': 1
-    }
+def fake_detection(text):
     white_list = pd.read_pickle('white_list.pkl')
-    sf = SourceFinder(white_list=white_list, model_kwargs=model_kwargs)
+    sf = SourceFinder(white_list=white_list)
     article_info, distance = sf.find_source(text)
     return (article_info, distance)
 
