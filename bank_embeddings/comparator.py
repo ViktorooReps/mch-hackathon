@@ -1,57 +1,34 @@
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.metrics import pairwise_distances
 import numpy as np
 import pandas as pd
 from os.path import join
 
 import warnings
 warnings.filterwarnings("ignore")
-from feature_extraction.bert import BertFeatureExtractor
+from feature_extraction.bert import FeatureExtractor
 
 class Comparator():
     def __init__(self, dataframe: pd.DataFrame, title_embeddings: np.array, text_embeddings: np.array):
-        """
-            param: dataframe - мета-информация (train.csv, test.csv) о статьях
-            param: title_embeddings - BERT-эмбеддинги заголовков статей
-            param: text_embeddings  - BERT-эмбеддинги текстов статей
-        """
         self.source_meta = dataframe
         
         self.title_source_embeddings = title_embeddings
         self.text_source_embeddings = text_embeddings
 
-        self.embedder = BertFeatureExtractor()
+        self.embedder = FeatureExtractor()
 
     def get_source(self, text: str, *, top_k: int = 1, use_title: bool = False):
-        """
-            param: text  - потенциальный фейк, хотим для этого текста найти первоисточник
-            param: top_k - сколько потенциальных первоисточников возвращать
-            param: use_title - использовать эмбеддинги текстов или эмбеддинги заголовков из банка для сравнения с param: text
-
-            returns:
-            param: top_k троек (заголовок_потенциального_первоисточника, текст_потенциального_первоисточника, cosine_similarity эмбеддингов)
-        """
         embedding = np.array(self.embedder.extract_features(text))
         index, similarity = self.search_nearest_neightbours(embedding, top_k, use_title)
         return (self.source_meta.loc[index, "title"], self.source_meta.loc[index, "text"], similarity[index])
 
     def search_nearest_neightbours(self, embedding: np.array, top_k: int, use_title: bool):
-        """
-            param: text  - потенциальный фейк, хотим для этого текста найти первоисточник
-            param: top_k - сколько потенциальных первоисточников возвращать
-            param: use_title - использовать эмбеддинги текстов или эмбеддинги заголовков из банка для сравнения с param: text
-
-            returns:
-            param: top_k - ближайших по cosine similarity соседей из банка 
-        """
         if use_title:
             similarity = cosine_similarity([embedding], self.title_source_embeddings)
         else:
-            print(embedding.shape, self.text_source_embeddings.shape)
-            similarity = pairwise_distances(embedding, self.text_source_embeddings, metric='minkowski')
+            similarity = cosine_similarity([embedding], self.text_source_embeddings)
         similarity = similarity[0]
         indices = np.argsort(similarity)
-        indices = indices[:top_k]
+        indices = indices[-top_k:]
         return indices, similarity
 
 if __name__ == "__main__":
@@ -77,24 +54,26 @@ if __name__ == "__main__":
         text_embeddings = np.concatenate([train_text_embeddings, test_text_embeddings], axis=0)
         title_embeddings = np.concatenate([train_title_embeddings, test_title_embeddings], axis=0)
 
-    # print(len(meta), text_embeddings.shape, title_embeddings.shape)
     print(f"Meta-information length : {len(meta)}")
     print(f"Text embeddings shape : {text_embeddings.shape}")
     print(f"Title embeddings shape : {title_embeddings.shape}")
     
-    fakes = pd.read_csv(join(data_dir, 'provided_fakes.csv'))
     comparator = Comparator(meta,  title_embeddings, text_embeddings)
-    for test_index in range(len(fakes)):
-        print('*' * 100)
-        fake_title, fake_text = fakes['title'][test_index], fakes['text'][test_index]
-        titles, texts, similarities = comparator.get_source(fake_text, top_k=top_k, use_title=use_title)
-        print(f"Fake title : {fake_title}")
-        for title, text, similarity in zip(titles, texts, similarities):
-            print(f"{title:>100} : {similarity:.4f}")
-    print('*' * 100)
-    # print(f"Source title : Суперсервис на портале mos.ru поможет участникам программы реновации докупить квадратные метры")
-    # titles, texts, similarities = comparator.get_source('Суперсервис на портале mos.ru поможет участникам программы реновации докупить квадратные метры', top_k=top_k, use_title=use_title)
-    # for title, text, similarity in zip(titles, texts, similarities):
+    
+    fakes = pd.read_csv(join(data_dir, 'provided_fakes.csv'))
+    # for test_index in range(len(fakes)):
+    #     print('*' * 100)
+    #     fake_title, fake_text = fakes['title'][test_index], fakes['text'][test_index]
+    #     titles, texts, similarities = comparator.get_source(fake_text, top_k=top_k, use_title=use_title)
+    #     print(f"Fake title : {fake_title}")
+    #     for title, text, similarity in zip(titles, texts, similarities):
     #         print(f"{title:>100} : {similarity:.4f}")
+    # print('*' * 100)
+    with open('paper.txt') as file:
+        data = file.readlines()
+    data = "\n".join(data)
+    titles, texts, similarities = comparator.get_source(data, top_k=top_k, use_title=use_title)
+    for title, text, similarity in zip(titles, texts, similarities):
+            print(f"{title:>100} : {similarity:.4f}")
 
     
